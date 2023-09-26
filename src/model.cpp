@@ -3,12 +3,12 @@
 #include "obj_loader.h"
 #include <iostream>
 
-Model::Model(const char* path)
+Model::Model(const char *path)
 {
 	// TODO: Initalisation du modèle et des attibuts de la classe
 }
 
-void Model::loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLuint>& indices)
+void Model::loadObj(const char *path, std::vector<GLfloat> &pos, std::vector<GLuint> &indices)
 {
 	objl::Loader loader;
 	bool loadout = loader.LoadFile(path);
@@ -25,9 +25,9 @@ void Model::loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLu
 		pos.push_back(p.Y);
 		pos.push_back(p.Z);
 		// TODO: Décommenter lors de la partie 2
-		//objl::Vector2 t = loader.LoadedVertices[i].TextureCoordinate;
-		//vertexData.push_back(t.X);
-		//vertexData.push_back(t.Y);
+		// objl::Vector2 t = loader.LoadedVertices[i].TextureCoordinate;
+		// vertexData.push_back(t.X);
+		// vertexData.push_back(t.Y);
 	}
 	indices = loader.LoadedIndices;
 }
