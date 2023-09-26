@@ -1,0 +1,6 @@
+*.pdf
+*build-Darwin/
+*.vscode/
+# *.sln
+# *.vcxproj
+# *.config
