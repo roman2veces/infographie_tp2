@@ -41,9 +41,9 @@ const int A = 0.0;
 
 int main()
 {
-    // Window w;
-    // if (!w.init())
-    //     return -1;
+    Window w;
+    if (!w.init())
+        return -1;
 
     GLenum rev = glewInit();
     if (rev != GLEW_OK)
@@ -162,16 +162,16 @@ int main()
 
     while (isRunning)
     {
-        // if (w.shouldResize())
-        //     glViewport(0, 0, w.getWidth(), w.getHeight());
+        if (w.shouldResize())
+            glViewport(0, 0, w.getWidth(), w.getHeight());
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // if (w.getKey(Window::Key::T))
-        // {
-        //     selectShape = ++selectShape < 7 ? selectShape : 0;
-        //     std::cout << "Selected shape: " << selectShape << std::endl;
-        // }
+        if (w.getKey(Window::Key::T))
+        {
+            selectShape = ++selectShape < 7 ? selectShape : 0;
+            std::cout << "Selected shape: " << selectShape << std::endl;
+        }
 
         changeRGB(&onlyColorTriVertices[0]);
         changeRGB(&onlyColorTriVertices[3]);
@@ -236,8 +236,8 @@ int main()
             matrModel = rotationMatrix * translationMatrix; // pas de translation dans cet exemple
             // ordre pour lookat position de la camera, target de la camera, direction vers le haut
             matrVisu = glm::lookAt(glm::vec3(0.0f, 0.5f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            // float ratio = (float)w.getWidth() / (float)w.getHeight();
-            // matrProj = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 10.0f);
+            float ratio = (float)w.getWidth() / (float)w.getHeight();
+            matrProj = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 10.0f);
 
             mvpMtr = matrProj * matrVisu * matrModel;
             // afficher le modèle on get la position du cube et on l'update
