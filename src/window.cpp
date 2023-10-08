@@ -9,6 +9,9 @@ Window::Window()
 , m_shouldClose(false)
 , m_shouldResize(false)
 , m_width(0), m_height(0)
+, m_mouseX(0)
+, m_mouseY(0)
+, m_scroll(0)
 {
     
 }
@@ -50,6 +53,9 @@ bool Window::init()
         return false;
     }
     
+    SDL_GetWindowSize(m_window, &m_width, &m_height);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    
     m_context = SDL_GL_CreateContext(m_window);
     if (!m_context)
     {
@@ -58,7 +64,8 @@ bool Window::init()
         return false;
     }
 
-    SDL_GL_SetSwapInterval(1);
+    const int VSYNC = 1; // 1 on, 0 off, -1 adaptive
+    SDL_GL_SetSwapInterval(VSYNC);
     
     return true;
 }
@@ -70,7 +77,8 @@ void Window::swap()
 
 void Window::pollEvent()
 {
-    SDL_Event e;        
+    m_scroll = 0;
+    SDL_Event e;
     while (SDL_PollEvent(&e))
     {
         switch (e.type)
@@ -82,7 +90,7 @@ void Window::pollEvent()
             if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
             {
                 m_width  = e.window.data1;
-                m_height = e.window.data2;                    
+                m_height = e.window.data2;
                 m_shouldResize = true;
             }
             else if (e.window.event == SDL_WINDOWEVENT_SHOWN)
@@ -98,13 +106,37 @@ void Window::pollEvent()
         case SDL_KEYUP:
             m_keys[(Key)e.key.keysym.sym] = false;
             break;
+        case SDL_MOUSEMOTION:
+            m_mouseX += e.motion.xrel;
+            m_mouseY += e.motion.yrel;
+            break;
+        case SDL_MOUSEWHEEL:
+            if (e.wheel.y > 0) m_scroll = 1;
+            else if (e.wheel.y < 0) m_scroll = -1;
+            break;
         }
     }
 }
 
-bool Window::getKey(Key k)
+
+void Window::getMouseMotion(int& x, int& y)
 {
-    // Utilise un patron de consommation pour détecter au moment qu'on appuis.
+    x = m_mouseX; y = m_mouseY;
+    m_mouseX = m_mouseY = 0;
+}
+
+int Window::getMouseScrollDirection()
+{
+    return m_scroll;
+}
+
+bool Window::getKeyHold(Key k)
+{
+    return m_keys[k];
+}
+
+bool Window::getKeyPress(Key k)
+{
     bool state = m_keys[k];
     m_keys[k] = false;
     return state;

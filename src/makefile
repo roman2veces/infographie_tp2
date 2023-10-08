@@ -20,7 +20,7 @@ endif
 
 SRC=main
 BUILD=./build-$(shell uname)
-EXE=$(BUILD)/tp2.exe
+EXE=$(BUILD)/tp1.exe
 
 exe : $(EXE)
 run : exe

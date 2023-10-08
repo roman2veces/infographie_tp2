@@ -27,7 +27,6 @@ BasicShapeArrays::~BasicShapeArrays()
 void BasicShapeArrays::enableAttribute(GLuint index, GLint size, GLsizei stride, GLsizeiptr offset)
 {
     // TODO Partie 1: Activer un attribut et l'attacher correctement au state du vao.
-    // TODO: why bind again?
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, (const GLvoid *)(offset * sizeof(float)));
@@ -39,14 +38,13 @@ void BasicShapeArrays::draw(GLenum mode, GLsizei count)
     // TODO Partie 1: Dessiner la forme.
     glBindVertexArray(m_vao);
     glDrawArrays(mode, 0, count);
-    // TODO: why 0?
     glBindVertexArray(0);
 }
 
 BasicShapeMultipleArrays::BasicShapeMultipleArrays(const GLfloat *pos, GLsizeiptr posByteSize, const GLfloat *color, GLsizeiptr colorByteSize)
 {
     // TODO Partie 1: Générer et bind le vao de la forme.
-    glGenVertexArrays(1, &m_vao); 
+    glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
     // TODO Partie 1: Générer et bind les vbos (un pour la position,
@@ -57,7 +55,7 @@ BasicShapeMultipleArrays::BasicShapeMultipleArrays(const GLfloat *pos, GLsizeipt
 
     glBindBuffer(GL_ARRAY_BUFFER, m_posVbo);
     glBufferData(GL_ARRAY_BUFFER, posByteSize, pos, GL_DYNAMIC_DRAW);
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, m_colorVbo);
     glBufferData(GL_ARRAY_BUFFER, colorByteSize, color, GL_DYNAMIC_DRAW);
 }
@@ -92,7 +90,6 @@ void BasicShapeMultipleArrays::updateColorData(const GLfloat *color, GLsizeiptr 
 {
     // TODO Partie 1: Modifier la totalité des données de couleur
     glBindBuffer(GL_ARRAY_BUFFER, m_colorVbo);
-    // TODO: why 0 and not the right offset?
     glBufferSubData(GL_ARRAY_BUFFER, 0, colorByteSize, color);
 }
 
@@ -115,11 +112,23 @@ void BasicShapeMultipleArrays::draw(GLenum mode, GLsizei count)
     // TODO Partie 1: Dessiner la forme.
     glBindVertexArray(m_vao);
     glDrawArrays(mode, 0, count);
-    // TODO: why 0?
     glBindVertexArray(0);
 }
 
-BasicShapeElements::BasicShapeElements(const GLfloat *data, GLsizeiptr byteSize, const GLubyte *indexes, GLsizeiptr indexesByteSize)
+BasicShapeElements::BasicShapeElements()
+{
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
+
+    glGenBuffers(1, &m_vbo);
+    glGenBuffers(1, &m_ebo);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+}
+
+BasicShapeElements::BasicShapeElements(const GLfloat *data, GLsizeiptr byteSize, const GLuint*indexes, GLsizeiptr indexesByteSize)
 {
     // TODO Partie 1: Générer et bind le vao de la forme.
     glGenVertexArrays(1, &m_vao);
@@ -135,6 +144,12 @@ BasicShapeElements::BasicShapeElements(const GLfloat *data, GLsizeiptr byteSize,
     glBufferData(GL_ARRAY_BUFFER, byteSize, data, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexesByteSize, indexes, GL_STATIC_DRAW);
+}
+
+void BasicShapeElements::setData(const GLfloat* data, GLsizeiptr byteSize, const GLuint* indexes, GLsizeiptr indexesByteSize)
+{
+    glBufferData(GL_ARRAY_BUFFER, byteSize, data, GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexesByteSize, indexes, GL_STATIC_DRAW);
 }
 
@@ -160,6 +175,6 @@ void BasicShapeElements::draw(GLenum mode, GLsizei count)
 {
     // TODO Partie 1: Dessiner la forme avec le ebo.
     glBindVertexArray(m_vao);
-    glDrawElements(mode, count, GL_UNSIGNED_BYTE, 0);
+    glDrawElements(mode, count, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }

@@ -6,6 +6,12 @@
 Model::Model(const char* path)
 {
 	// TODO: Initalisation du modèle et des attibuts de la classe
+	std::vector<GLfloat> pos; 
+	std::vector<GLuint> indices;
+	this->loadObj(path, pos, indices);
+	this->m_shape = BasicShapeElements(pos.data(), pos.size(), indices.data(), indices.size());
+	this->m_shape.enableAttribute(0, 3, 6 * sizeof(float), 0);
+	this->m_count = sizeof(indices) / sizeof(GLuint);
 }
 
 void Model::loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLuint>& indices)
@@ -35,4 +41,5 @@ void Model::loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLu
 void Model::draw()
 {
 	// TODO: Dessine le modèle en triangle
+	this->m_shape.draw(GL_TRIANGLES, this->m_count);
 }
