@@ -210,8 +210,9 @@ int main(int argc, char* argv[])
             /*treeModel.draw();
             suzanneModel.draw();
             rockModel.draw();
-            mushroomModel.draw();*/
+            //mushroomModel.draw();*/
             // Dessiner le carré
+            mushroomModel.draw();
             squarePlane.draw(GL_TRIANGLES, 6);
             rectanglePlane.draw(GL_TRIANGLES, 6);
             setPVMatrix(modelShaderProgram, ratio);
