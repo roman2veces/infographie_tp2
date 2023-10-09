@@ -54,7 +54,7 @@ bool Window::init()
     }
     
     SDL_GetWindowSize(m_window, &m_width, &m_height);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    //SDL_SetRelativeMouseMode(SDL_TRUE);
     
     m_context = SDL_GL_CreateContext(m_window);
     if (!m_context)

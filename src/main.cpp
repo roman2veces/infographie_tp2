@@ -15,7 +15,7 @@
 #include "shapes.h"
 #include "./model.h"
 #include "./camera.h"
-
+#include "./utils.h"
 
 void printGLInfo();
 
@@ -29,11 +29,18 @@ const int POSITION_ATTRIBUT_INDEX = 0, COLOR_ATTRIBUT_INDEX = 1;
 const int POSITION_ATTRIBUT_OFFSET = 0, COLOR_ATTRIBUT_OFFSET = 3;
 const int THREE_COMPONENTS = 3, SIX_COMPONENTS = 6;
 const char *MVP_NAME = "mvp";
+const int N_ROWS = 7;
+const int N_GROUPS = N_ROWS * N_ROWS;
 
 // GLOBAL VARIABLES
 glm::vec3 cameraPosition(-15.0f, 0.0f, 0.0f); //position initiale de la camera ou la placer?
 glm::vec2 cameraOrientation(0.0f, 0.0f);    // Orientation initiale (regard droit devant)
 bool isFirstPersonCam = false;
+glm::mat4 groupsTransform[N_GROUPS];
+glm::mat4 treeTransform[N_GROUPS];
+glm::mat4 rockTransform[N_GROUPS];
+glm::mat4 mushroomTransform[N_GROUPS];
+Camera camera(cameraPosition, cameraOrientation);
 
 // Define RGBA background colors
 const int R = 1.0;
@@ -67,22 +74,17 @@ void createFloor() {
 //   
 //}
 
-void setPVMatrix(ShaderProgram &modelShaderProgram, float ratio){
-            Camera camera(cameraPosition, cameraOrientation);
-            glm::mat4 viewMatrix;
-            // Obtention de la matrice de vue en première personne
-            if(isFirstPersonCam)
-                viewMatrix = camera.getFirstPersonViewMatrix();
-            else
-                viewMatrix = camera.getThirdPersonViewMatrix();
-            glm::mat4 projectionMatrix(1.0);
-            projectionMatrix = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 10.0f);
-            // ... location;
+glm::mat4 getViewMatrix() {
+    if (isFirstPersonCam)
+       return camera.getFirstPersonViewMatrix();
+    else
+        return camera.getThirdPersonViewMatrix();
+}
+
+void setPVMatrix(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatrix){
             GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
-
-
-            glm::mat4 matrix = projectionMatrix * viewMatrix;
-            glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)); }
+            glm::mat4 matrix = glm::mat4(1.0f) * projectionViewMatrix;
+            glUniformMatrix4fv(location, 1, GL_FALSE, &projectionViewMatrix[0][0]); }
 
 void setCameraPerson(Window& w) {
     if(w.getMouseScrollDirection() == 1)
@@ -123,6 +125,72 @@ void handleKeyBoardEvent(Window &w) {
     }
 }
 
+/**Take  a glm::mat4 groupsTransform where the group will be stored*/
+void createTransformation() {
+    // Initialisation des matrices de transformation pour chaque groupe
+    for (int row = 0; row < N_ROWS; row++) {
+        for (int col = 0; col < N_ROWS; col++) {
+            int groupIndex = row * N_ROWS + col;
+
+            // Génération de la transformation aléatoire pour le groupe
+            float randPosX, randPosZ;
+            getGroupRandomPos(groupIndex, N_ROWS, randPosX, randPosZ);
+            glm::vec3 groupTranslation = glm::vec3(randPosX, -1.0f, randPosZ);
+            float groupRotationY = rand01() * glm::two_pi<float>();
+            float groupScale = glm::mix(0.7f, 1.3f, rand01());
+
+            // Matrice de transformation pour le groupe
+            groupsTransform[groupIndex] = glm::mat4(1.0f);
+            groupsTransform[groupIndex] = glm::translate(groupsTransform[groupIndex], groupTranslation);
+            groupsTransform[groupIndex] = glm::rotate(groupsTransform[groupIndex], groupRotationY, glm::vec3(0.0f, 1.0f, 0.0f));
+            groupsTransform[groupIndex] = glm::scale(groupsTransform[groupIndex], glm::vec3(groupScale));
+
+            // Matrice de transformation pour l'arbre (centré en (0, 0, 0))
+            float treeScale = glm::mix(0.7f, 1.3f, rand01());
+            treeTransform[groupIndex] = glm::mat4(1.0f);
+            treeTransform[groupIndex] = glm::scale(treeTransform[groupIndex], glm::vec3(treeScale));
+
+            // Matrice de transformation pour le rocher (sur un cercle autour du groupe)
+            float rockRadius = glm::mix(1.0f, 2.0f, rand01());
+            float rockAngle = rand01() * glm::two_pi<float>();
+            rockTransform[groupIndex] = glm::mat4(1.0f);
+            rockTransform[groupIndex] = glm::translate(rockTransform[groupIndex], glm::vec3(rockRadius * glm::cos(rockAngle), -0.2f, rockRadius * glm::sin(rockAngle)));
+            rockTransform[groupIndex] = glm::scale(rockTransform[groupIndex], glm::vec3(0.5f));
+
+            // Matrice de transformation pour le champignon (à la base de l'arbre)
+            mushroomTransform[groupIndex] = glm::mat4(1.0f);
+            mushroomTransform[groupIndex] = glm::translate(mushroomTransform[groupIndex], glm::vec3(0.3f * treeScale, 0.0f, 0.3f * treeScale));
+            mushroomTransform[groupIndex] = glm::scale(mushroomTransform[groupIndex], glm::vec3(0.05f));
+        }
+    }
+    
+}
+
+void drawWorld(ShaderProgram& modelShaderProgram, glm::mat4 & projectionViewMatrix) {
+    // Création des models
+    Model mushroomModel("../models/mushroom.obj");
+    Model rockModel("../models/rock.obj");
+    Model suzanneModel("../models/suzanne.obj");
+    Model treeModel("../models/tree.obj");
+    for (size_t i = 0; i < N_GROUPS; i++)
+    {
+        GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
+        glm::mat4 treeMatrix = projectionViewMatrix * groupsTransform[i] * treeTransform[i];
+         glUniformMatrix4fv(location, 1, GL_FALSE, &treeMatrix[0][0]); 
+        treeModel.draw();
+
+        glm::mat4 rockMatrix = projectionViewMatrix * groupsTransform[i] * rockTransform[i];
+        glUniformMatrix4fv(location, 1, GL_FALSE, &rockMatrix[0][0]);
+        rockModel.draw();
+
+        glm::mat4 mushroomMatrix = projectionViewMatrix * groupsTransform[i] * mushroomTransform[i];
+        glUniformMatrix4fv(location, 1, GL_FALSE, &mushroomMatrix[0][0]);
+        mushroomModel.draw();
+
+
+    }
+}
+
 int main(int argc, char* argv[])
 {
     Window w;
@@ -136,30 +204,8 @@ int main(int argc, char* argv[])
         return -2;
     }
 
-    // Initialization
-    const int N_ROWS = 7;
-    const int N_GROUPS = N_ROWS * N_ROWS;
-
-    glm::mat4 groupsTransform[N_GROUPS];
-
-    glm::mat4 treeTransform[N_GROUPS];
-    glm::mat4 rockTransform[N_GROUPS];
-    glm::mat4 shroomTransform[N_GROUPS];
-
-    // ...
-
-    glm::vec3 playerPosition = glm::vec3(0);
-    glm::vec2 playerOrientation = glm::vec2(0);
-
-    // ...
-
-    
-    // Création des models
-    Model mushroomModel("../models/mushroom.obj");
-    Model rockModel("../models/rock.obj");
-    Model suzanneModel("../models/suzanne.obj");
-    Model treeModel("../models/tree.obj");
-
+    float ratio = (float)w.getWidth() / (float)w.getHeight();
+    glm::mat4 projectionMatrix = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 200.0f);
 
     // Créez une instance de BasicShapeElements en utilisant les données du plan carré
     BasicShapeElements squarePlane(squarePlaneVertices, sizeof(squarePlaneVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
@@ -170,26 +216,18 @@ int main(int argc, char* argv[])
     rectanglePlane.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
     rectanglePlane.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3);
 
+    // Créer les transformations
+    createTransformation();
 
 
-    // TODO Partie 2: Shader program de transformation.
-    // ... transform;
+    // Shader program du modèle.
     ShaderProgram modelShaderProgram;
     shadersSetup(modelShaderProgram, "shaders/model.vs.glsl", "shaders/model.fs.glsl");
 
-    // Variables pour la mise à jour, ne pas modifier.
-    float cx = 0, cy = 0;
-    float dx = 0.019;
-    float dy = 0.0128;
-    float angleDeg = 0.0f;
-
-    float ratio = (float)w.getWidth() / (float)w.getHeight();
-
-    // TODO Partie 1: Donner une couleur de remplissage aux fonds.
     // Couleur de fond blanche
     glClearColor(R, G, B, A);
 
-    // TODO Partie 2: Activer le depth test.
+    // Activer le depth test.
     glEnable(GL_DEPTH_TEST);
 
     int selectShape = 0;
@@ -199,6 +237,7 @@ int main(int argc, char* argv[])
     {
         if (w.shouldResize())
             glViewport(0, 0, w.getWidth(), w.getHeight());
+        glm::mat4 projectionViewMatrix = projectionMatrix * getViewMatrix();
 
         // update camera orientation
         handleMouseEvent(w);
@@ -207,15 +246,10 @@ int main(int argc, char* argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             modelShaderProgram.use();
-            /*treeModel.draw();
-            suzanneModel.draw();
-            rockModel.draw();
-            //mushroomModel.draw();*/
-            // Dessiner le carré
-            mushroomModel.draw();
+            drawWorld(modelShaderProgram, projectionViewMatrix);
+            setPVMatrix(modelShaderProgram, projectionViewMatrix);
             squarePlane.draw(GL_TRIANGLES, 6);
             rectanglePlane.draw(GL_TRIANGLES, 6);
-            setPVMatrix(modelShaderProgram, ratio);
 
         w.swap();
         w.pollEvent();

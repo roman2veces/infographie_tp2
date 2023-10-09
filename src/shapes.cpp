@@ -118,14 +118,8 @@ void BasicShapeMultipleArrays::draw(GLenum mode, GLsizei count)
 BasicShapeElements::BasicShapeElements()
 {
     glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);
-
     glGenBuffers(1, &m_vbo);
     glGenBuffers(1, &m_ebo);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
 }
 
 BasicShapeElements::BasicShapeElements(const GLfloat *data, GLsizeiptr byteSize, const GLuint*indexes, GLsizeiptr indexesByteSize)
@@ -149,7 +143,13 @@ BasicShapeElements::BasicShapeElements(const GLfloat *data, GLsizeiptr byteSize,
 
 void BasicShapeElements::setData(const GLfloat* data, GLsizeiptr byteSize, const GLuint* indexes, GLsizeiptr indexesByteSize)
 {
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, byteSize, data, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &m_ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexesByteSize, indexes, GL_STATIC_DRAW);
 }
 

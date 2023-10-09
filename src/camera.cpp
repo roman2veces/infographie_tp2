@@ -20,7 +20,7 @@ glm::mat4 Camera::getFirstPersonViewMatrix()
 	rotationMatrix = glm::rotate(rotationMatrix, m_orientation.y, glm::vec3(1.0f, 0.0f, 0.0f)); // rotation sur l'axe horizontal
 
 	// Matrice de translation en fonction de la position
-	glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), -m_position);
+	glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), -m_position + glm::vec3(0.0f, -1.0f, 0.0f)); // ajuster position en y
 
 	// Matrice de vue combinant rotation et translation
 	glm::mat4 viewMatrix = rotationMatrix * translationMatrix;

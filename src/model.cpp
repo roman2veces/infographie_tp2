@@ -9,8 +9,9 @@ Model::Model(const char* path)
 	std::vector<GLfloat> pos; 
 	std::vector<GLuint> indices;
 	this->loadObj(path, pos, indices);
-	this->m_shape = BasicShapeElements(pos.data(), pos.size(), indices.data(), indices.size());
-	this->m_shape.enableAttribute(0, 3, 3 * sizeof(float), 0);
+	this->m_shape = BasicShapeElements();
+	this->m_shape.setData(pos.data(), pos.size() * sizeof(GLfloat), indices.data(), indices.size() * sizeof(GLfloat));
+	this->m_shape.enableAttribute(0, 3, 0, 0);
 	this->m_count = indices.size();
 }
 
