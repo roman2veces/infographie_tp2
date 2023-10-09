@@ -3,6 +3,32 @@
 
 // Vous pouvez merge ce fichier avec celui du tp1
 
+// Dimensions du plan carré
+const GLfloat planeSize = 60.0f;
+const GLfloat streamLength = 20.0f;
+
+GLfloat rectangleVertices[] = {
+    // Position             // Couleur
+    -planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f, 0.0f, 0.0f, 1.0f,
+    -planeSize / 2.0f, -1.0f, -planeSize / 2.0f, 0.0f, 0.0f, 1.0f,
+    planeSize / 2.0f, -1.0f, planeSize / 2.0f, 0.0f, 0.0f, 1.0f,
+    planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f, 0.0f, 0.0f, 1.0f
+};
+
+GLfloat squarePlaneVertices[] = {
+    // Position             // Couleur
+   -planeSize / 2.0f, -1.0f, -planeSize / 2.0f, 0.0f, 1.0f, 0.0f,
+   -planeSize / 2.0f, -1.0f, planeSize / 2.0f, 0.0f, 1.0f, 0.0f,
+   planeSize / 2.0f, -1.0f, planeSize / 2.0f, 0.0f, 1.0f, 0.0f,
+   planeSize / 2.0f, -1.0f, -planeSize / 2.0f, 0.0f, 1.0f, 0.0f
+};
+
+// Indices pour dessiner le carré comme deux triangles
+GLuint squarePlaneIndices[] = {
+    0, 1, 2,
+    0, 2, 3
+};
+
 const GLfloat cubeVertices[] = {
     // +z
     -0.5f,

@@ -16,8 +16,8 @@ glm::mat4 Camera::getFirstPersonViewMatrix()
 	// En gros à chaque fois qu'on va appuyer sur une touche ou sur la souris, 
 	// On va modifier la matrice de vue en se servant de la matrice de vue actuelle: 
 	glm::mat4 rotationMatrix = glm::mat4(1.0f);
-	rotationMatrix = glm::rotate(rotationMatrix, m_orientation.x, glm::vec3(1.0f, 0.0f, 0.0f)); // rotation sur l'axe horizontal
-	rotationMatrix = glm::rotate(rotationMatrix, m_orientation.y, glm::vec3(0.0f, 1.0f, 0.0f)); // rotation sur l'axe vertical
+	rotationMatrix = glm::rotate(rotationMatrix, m_orientation.x, glm::vec3(0.0f, 1.0f, 0.0f)); // rotation sur l'axe vertical
+	rotationMatrix = glm::rotate(rotationMatrix, m_orientation.y, glm::vec3(1.0f, 0.0f, 0.0f)); // rotation sur l'axe horizontal
 
 	// Matrice de translation en fonction de la position
 	glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), -m_position);

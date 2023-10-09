@@ -14,6 +14,7 @@
 #include "vertices_data.h"
 #include "shapes.h"
 #include "./model.h"
+#include "./camera.h"
 
 
 void printGLInfo();
@@ -28,6 +29,11 @@ const int POSITION_ATTRIBUT_INDEX = 0, COLOR_ATTRIBUT_INDEX = 1;
 const int POSITION_ATTRIBUT_OFFSET = 0, COLOR_ATTRIBUT_OFFSET = 3;
 const int THREE_COMPONENTS = 3, SIX_COMPONENTS = 6;
 const char *MVP_NAME = "mvp";
+
+// GLOBAL VARIABLES
+glm::vec3 cameraPosition(-15.0f, 0.0f, 0.0f); //position initiale de la camera ou la placer?
+glm::vec2 cameraOrientation(0.0f, 0.0f);    // Orientation initiale (regard droit devant)
+bool isFirstPersonCam = false;
 
 // Define RGBA background colors
 const int R = 1.0;
@@ -55,30 +61,67 @@ void createFloor() {
 
 }
 
-void calculateMVP(float angleDeg, float windowWidth, float windowHeight, GLint mvpLocation)
-{
-    // Utiliser glm pour les calculs de matrices.
-    glm::mat4 matrix;
-    // Initialiser les matrices modele, de vue et de projection à l'identité
-    glm::mat4 modelMatrix(1.0);
-    glm::mat4 viewMatrix(1.0);
-    glm::mat4 projectionMatrix(1.0);
-    glm::vec3 observation(0.0, 0.5, 2);
-
-    modelMatrix = glm::rotate(modelMatrix, GLfloat(glm::radians(angleDeg)), glm::vec3(0.1, 1.0, 0.1));
-    viewMatrix = glm::lookAt(observation, glm::vec3(0.0), glm::vec3(0.0, 1.0, 0.0));
-
-    float ratio = windowWidth / windowHeight;
-    projectionMatrix = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 10.0f);
-
-    matrix = projectionMatrix * viewMatrix * modelMatrix;
-    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(matrix));
-}
 
 //void initialization() {
 //
 //   
 //}
+
+void setPVMatrix(ShaderProgram &modelShaderProgram, float ratio){
+            Camera camera(cameraPosition, cameraOrientation);
+            glm::mat4 viewMatrix;
+            // Obtention de la matrice de vue en première personne
+            if(isFirstPersonCam)
+                viewMatrix = camera.getFirstPersonViewMatrix();
+            else
+                viewMatrix = camera.getThirdPersonViewMatrix();
+            glm::mat4 projectionMatrix(1.0);
+            projectionMatrix = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 10.0f);
+            // ... location;
+            GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
+
+
+            glm::mat4 matrix = projectionMatrix * viewMatrix;
+            glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix)); }
+
+void setCameraPerson(Window& w) {
+    if(w.getMouseScrollDirection() == 1)
+        isFirstPersonCam = true;
+    else if(w.getMouseScrollDirection() == -1)
+        isFirstPersonCam = false;
+}
+
+void handleMouseEvent(Window& w) {
+    // Choisir la bonne caméra
+    setCameraPerson(w);
+    int mouseX, mouseY;
+    float mouseSensitivity = 0.01f;
+    w.getMouseMotion(mouseX, mouseY);
+    cameraOrientation.x += static_cast<float>(mouseX) * mouseSensitivity;
+    cameraOrientation.y += static_cast<float>(mouseY) * mouseSensitivity;
+    // Limitez l'angle vertical 
+    if (cameraOrientation.y > 0.1f) {
+        cameraOrientation.y = 0.1f;
+    }
+    else if (cameraOrientation.y < -0.1f) {
+        cameraOrientation.y = -0.1f;
+    }
+}
+
+void handleKeyBoardEvent(Window &w) {
+    if (w.getKeyHold(Window::Key::W) || w.getKeyPress(Window::Key::W)) {
+        cameraPosition.z -= 0.1f;
+    }
+    if (w.getKeyHold(Window::Key::S) || w.getKeyPress(Window::Key::S)) {
+        cameraPosition.z += 0.1f;
+    }
+    if (w.getKeyHold(Window::Key::A) || w.getKeyPress(Window::Key::A)) {
+        cameraPosition.x -= 0.1f;
+    }
+    if (w.getKeyHold(Window::Key::D) || w.getKeyPress(Window::Key::D)) {
+        cameraPosition.x += 0.1f;
+    }
+}
 
 int main(int argc, char* argv[])
 {
@@ -110,7 +153,6 @@ int main(int argc, char* argv[])
 
     // ...
 
-    bool isFirstPersonCam = false;
     
     // Création des models
     Model mushroomModel("../models/mushroom.obj");
@@ -119,26 +161,29 @@ int main(int argc, char* argv[])
     Model treeModel("../models/tree.obj");
 
 
+    // Créez une instance de BasicShapeElements en utilisant les données du plan carré
+    BasicShapeElements squarePlane(squarePlaneVertices, sizeof(squarePlaneVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
+    squarePlane.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
+    squarePlane.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3);
+    // Créer un rectangle
+    BasicShapeElements rectanglePlane(rectangleVertices, sizeof(rectangleVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
+    rectanglePlane.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
+    rectanglePlane.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3);
+
+
+
     // TODO Partie 2: Shader program de transformation.
     // ... transform;
     ShaderProgram modelShaderProgram;
     shadersSetup(modelShaderProgram, "shaders/model.vs.glsl", "shaders/model.fs.glsl");
-    // ... location;
-    GLint mvpLocation = modelShaderProgram.getUniformLoc(MVP_NAME);
 
     // Variables pour la mise à jour, ne pas modifier.
     float cx = 0, cy = 0;
     float dx = 0.019;
     float dy = 0.0128;
-
     float angleDeg = 0.0f;
 
-    // TODO Partie 2: Instancier le cube ici.
-    // ...
-    
-    BasicShapeElements cube(cubeVertices, sizeof(cubeVertices), cubeIndexes, sizeof(cubeIndexes));
-    cube.enableAttribute(POSITION_ATTRIBUT_INDEX, THREE_COMPONENTS, SIX_COMPONENTS * sizeof(float), POSITION_ATTRIBUT_OFFSET);
-    cube.enableAttribute(COLOR_ATTRIBUT_INDEX, THREE_COMPONENTS, SIX_COMPONENTS * sizeof(float), COLOR_ATTRIBUT_OFFSET);
+    float ratio = (float)w.getWidth() / (float)w.getHeight();
 
     // TODO Partie 1: Donner une couleur de remplissage aux fonds.
     // Couleur de fond blanche
@@ -155,15 +200,21 @@ int main(int argc, char* argv[])
         if (w.shouldResize())
             glViewport(0, 0, w.getWidth(), w.getHeight());
 
+        // update camera orientation
+        handleMouseEvent(w);
+        handleKeyBoardEvent(w);
         // TODO Partie 1: Nettoyer les tampons appropriées.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             modelShaderProgram.use();
-            treeModel.draw();
+            /*treeModel.draw();
             suzanneModel.draw();
             rockModel.draw();
-            mushroomModel.draw();
-            //calculateMVP(angleDeg, (float)w.getWidth(), (float)w.getHeight(), mvpLocation);
+            mushroomModel.draw();*/
+            // Dessiner le carré
+            squarePlane.draw(GL_TRIANGLES, 6);
+            rectanglePlane.draw(GL_TRIANGLES, 6);
+            setPVMatrix(modelShaderProgram, ratio);
 
         w.swap();
         w.pollEvent();
