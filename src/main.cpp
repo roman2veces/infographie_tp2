@@ -15,7 +15,6 @@
 #include "shapes.h"
 #include "./model.h"
 
-
 void printGLInfo();
 
 #define GL_CHECK_ERROR checkGLError(__LINE__)
@@ -51,8 +50,8 @@ void shadersSetup(ShaderProgram &shaderProgram, std::string vertexShaderPath, st
     shaderProgram.link();
 }
 
-void createFloor() {
-
+void createFloor()
+{
 }
 
 void calculateMVP(float angleDeg, float windowWidth, float windowHeight, GLint mvpLocation)
@@ -75,12 +74,7 @@ void calculateMVP(float angleDeg, float windowWidth, float windowHeight, GLint m
     glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-//void initialization() {
-//
-//   
-//}
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     Window w;
     if (!w.init())
@@ -111,20 +105,25 @@ int main(int argc, char* argv[])
     // ...
 
     bool isFirstPersonCam = false;
-    
+
     // Création des models
     Model mushroomModel("../models/mushroom.obj");
-    Model rockModel("../models/rock.obj");
-    Model suzanneModel("../models/suzanne.obj");
-    Model treeModel("../models/tree.obj");
-
+    // Model rockModel("../models/rock.obj");
+    // Model suzanneModel("../models/suzanne.obj");
+    // Model treeModel("../models/tree.obj");
 
     // TODO Partie 2: Shader program de transformation.
     // ... transform;
+
+    // ShaderProgram transformShaderProgram;
+    // shadersSetup(transformShaderProgram, "shaders/transform.vs.glsl", "shaders/transform.fs.glsl");
+    // GLint mvpLocation = transformShaderProgram.getUniformLoc(MVP_NAME);
+
     ShaderProgram modelShaderProgram;
     shadersSetup(modelShaderProgram, "shaders/model.vs.glsl", "shaders/model.fs.glsl");
+    // shadersSetup(modelShaderProgram, "shaders/transform.vs.glsl", "shaders/transform.fs.glsl");
     // ... location;
-    GLint mvpLocation = modelShaderProgram.getUniformLoc(MVP_NAME);
+    // GLint mvpLocation = modelShaderProgram.getUniformLoc(MVP_NAME);
 
     // Variables pour la mise à jour, ne pas modifier.
     float cx = 0, cy = 0;
@@ -135,7 +134,7 @@ int main(int argc, char* argv[])
 
     // TODO Partie 2: Instancier le cube ici.
     // ...
-    
+
     BasicShapeElements cube(cubeVertices, sizeof(cubeVertices), cubeIndexes, sizeof(cubeIndexes));
     cube.enableAttribute(POSITION_ATTRIBUT_INDEX, THREE_COMPONENTS, SIX_COMPONENTS * sizeof(float), POSITION_ATTRIBUT_OFFSET);
     cube.enableAttribute(COLOR_ATTRIBUT_INDEX, THREE_COMPONENTS, SIX_COMPONENTS * sizeof(float), COLOR_ATTRIBUT_OFFSET);
@@ -158,12 +157,13 @@ int main(int argc, char* argv[])
         // TODO Partie 1: Nettoyer les tampons appropriées.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            modelShaderProgram.use();
-            treeModel.draw();
-            suzanneModel.draw();
-            rockModel.draw();
-            mushroomModel.draw();
-            //calculateMVP(angleDeg, (float)w.getWidth(), (float)w.getHeight(), mvpLocation);
+        modelShaderProgram.use();
+        // treeModel.draw();
+        // suzanneModel.draw();
+        // rockModel.draw();
+        mushroomModel.draw();
+        // cube.draw(GL_TRIANGLES, 36);
+        // calculateMVP(angleDeg, (float)w.getWidth(), (float)w.getHeight(), mvpLocation);
 
         w.swap();
         w.pollEvent();

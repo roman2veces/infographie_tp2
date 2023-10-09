@@ -1,15 +1,9 @@
 #version 330 core
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in vec3 vPosition;
-layout(location = 1) in vec3 vColor;
+layout(location = 0) in vec3 Vertex;
 
-uniform mat4 mvp;
-
-out vec3 color;
-
-void  main()
+void main(void)
 {
-	color = vColor;
-	gl_Position = mvp * vec4(vPosition, 1.0);
+ gl_Position = vec4(Vertex, 1.0);
 }

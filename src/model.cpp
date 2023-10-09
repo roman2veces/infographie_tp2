@@ -3,18 +3,19 @@
 #include "obj_loader.h"
 #include <iostream>
 
-Model::Model(const char* path)
+Model::Model(const char *path)
 {
 	// TODO: Initalisation du modèle et des attibuts de la classe
-	std::vector<GLfloat> pos; 
+	std::vector<GLfloat> pos;
 	std::vector<GLuint> indices;
 	this->loadObj(path, pos, indices);
 	this->m_shape = BasicShapeElements(pos.data(), pos.size(), indices.data(), indices.size());
-	this->m_shape.enableAttribute(0, 3, 6 * sizeof(float), 0);
-	this->m_count = sizeof(indices) / sizeof(GLuint);
+	this->m_shape.enableAttribute(0, 3, 3 * sizeof(float), 0);
+	// this->m_count = sizeof(indices) / sizeof(GLuint);
+	this->m_count = indices.size();
 }
 
-void Model::loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLuint>& indices)
+void Model::loadObj(const char *path, std::vector<GLfloat> &pos, std::vector<GLuint> &indices)
 {
 	objl::Loader loader;
 	bool loadout = loader.LoadFile(path);
@@ -31,9 +32,9 @@ void Model::loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLu
 		pos.push_back(p.Y);
 		pos.push_back(p.Z);
 		// TODO: Décommenter lors de la partie 2
-		//objl::Vector2 t = loader.LoadedVertices[i].TextureCoordinate;
-		//vertexData.push_back(t.X);
-		//vertexData.push_back(t.Y);
+		// objl::Vector2 t = loader.LoadedVertices[i].TextureCoordinate;
+		// vertexData.push_back(t.X);
+		// vertexData.push_back(t.Y);
 	}
 	indices = loader.LoadedIndices;
 }
