@@ -11,7 +11,8 @@ Model::Model(const char* path)
 	this->loadObj(path, pos, indices);
 	this->m_shape = BasicShapeElements();
 	this->m_shape.setData(pos.data(), pos.size() * sizeof(GLfloat), indices.data(), indices.size() * sizeof(GLfloat));
-	this->m_shape.enableAttribute(0, 3, 0, 0);
+	this->m_shape.enableAttribute(0, 3, 5* sizeof(GLfloat), 0);
+	this->m_shape.enableAttribute(1, 2, 5* sizeof(GLfloat), 3);
 	this->m_count = indices.size();
 }
 
@@ -32,9 +33,9 @@ void Model::loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLu
 		pos.push_back(p.Y);
 		pos.push_back(p.Z);
 		// TODO: Décommenter lors de la partie 2
-		//objl::Vector2 t = loader.LoadedVertices[i].TextureCoordinate;
-		//vertexData.push_back(t.X);
-		//vertexData.push_back(t.Y);
+		objl::Vector2 t = loader.LoadedVertices[i].TextureCoordinate;
+		pos.push_back(t.X);
+		pos.push_back(t.Y);
 	}
 	indices = loader.LoadedIndices;
 }

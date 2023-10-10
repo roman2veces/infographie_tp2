@@ -16,6 +16,7 @@
 #include "./model.h"
 #include "./camera.h"
 #include "./utils.h"
+#include "./textures.h"
 
 void printGLInfo();
 
@@ -33,7 +34,7 @@ const int N_ROWS = 7;
 const int N_GROUPS = N_ROWS * N_ROWS;
 
 // GLOBAL VARIABLES
-glm::vec3 cameraPosition(-15.0f, 0.0f, 0.0f); //position initiale de la camera ou la placer?
+glm::vec3 cameraPosition(-15.0f, -1.0f, 0.0f); //position initiale de la camera ou la placer?
 glm::vec2 cameraOrientation(0.0f, 0.0f);    // Orientation initiale (regard droit devant)
 bool isFirstPersonCam = false;
 glm::mat4 groupsTransform[N_GROUPS];
@@ -69,10 +70,6 @@ void createFloor() {
 }
 
 
-//void initialization() {
-//
-//   
-//}
 
 glm::mat4 getViewMatrix() {
     if (isFirstPersonCam)
@@ -83,6 +80,7 @@ glm::mat4 getViewMatrix() {
 
 void setPVMatrix(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatrix){
             GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
+            GLint textureLocation = modelShaderProgram.getUniformLoc("sampler2d");
             glm::mat4 matrix = glm::mat4(1.0f) * projectionViewMatrix;
             glUniformMatrix4fv(location, 1, GL_FALSE, &projectionViewMatrix[0][0]); }
 
@@ -172,23 +170,51 @@ void drawWorld(ShaderProgram& modelShaderProgram, glm::mat4 & projectionViewMatr
     Model rockModel("../models/rock.obj");
     Model suzanneModel("../models/suzanne.obj");
     Model treeModel("../models/tree.obj");
+
+    // Textures 
+    Texture2D suzanneTexture("../models/suzanneTexture.png", GL_CLAMP_TO_EDGE);
+    suzanneTexture.enableMipmap();
+    Texture2D treeTexture("../models/treeTexture.png", GL_CLAMP_TO_EDGE);
+    treeTexture.enableMipmap();
+    Texture2D rockTexture("../models/rockTexture.png", GL_CLAMP_TO_EDGE);
+    rockTexture.enableMipmap();
+    Texture2D mushroomTexture("../models/mushroomTexture.png", GL_CLAMP_TO_EDGE);
+    mushroomTexture.enableMipmap();
+
     for (size_t i = 0; i < N_GROUPS; i++)
     {
         GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
         glm::mat4 treeMatrix = projectionViewMatrix * groupsTransform[i] * treeTransform[i];
          glUniformMatrix4fv(location, 1, GL_FALSE, &treeMatrix[0][0]); 
+         treeTexture.use();
         treeModel.draw();
+        treeTexture.unuse();
 
         glm::mat4 rockMatrix = projectionViewMatrix * groupsTransform[i] * rockTransform[i];
         glUniformMatrix4fv(location, 1, GL_FALSE, &rockMatrix[0][0]);
+        rockTexture.use();
         rockModel.draw();
+        rockTexture.unuse();
 
         glm::mat4 mushroomMatrix = projectionViewMatrix * groupsTransform[i] * mushroomTransform[i];
         glUniformMatrix4fv(location, 1, GL_FALSE, &mushroomMatrix[0][0]);
+        mushroomTexture.use();
         mushroomModel.draw();
-
-
+        mushroomTexture.unuse();
     }
+
+    GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
+    glm::mat4 suzanneMatrix;
+    if(isFirstPersonCam)
+        suzanneMatrix = projectionViewMatrix * glm::mat4(1.0f);
+    else {
+        suzanneMatrix = projectionViewMatrix * glm::translate(glm::mat4(1.0f), cameraPosition);
+        suzanneMatrix = glm::scale(suzanneMatrix, glm::vec3(0.5f));
+    }
+    glUniformMatrix4fv(location, 1, GL_FALSE, &suzanneMatrix[0][0]);
+    suzanneTexture.use();
+    suzanneModel.draw();
+    suzanneTexture.unuse();
 }
 
 int main(int argc, char* argv[])
@@ -209,15 +235,22 @@ int main(int argc, char* argv[])
 
     // Créez une instance de BasicShapeElements en utilisant les données du plan carré
     BasicShapeElements squarePlane(squarePlaneVertices, sizeof(squarePlaneVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
-    squarePlane.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
-    squarePlane.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3);
+    squarePlane.enableAttribute(0, 3, 0, 0);
+    squarePlane.enableAttribute(1, 2, 0, 0);
     // Créer un rectangle
     BasicShapeElements rectanglePlane(rectangleVertices, sizeof(rectangleVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
-    rectanglePlane.enableAttribute(0, 3, 6 * sizeof(GLfloat), 0);
-    rectanglePlane.enableAttribute(1, 3, 6 * sizeof(GLfloat), 3);
+    rectanglePlane.enableAttribute(0, 3, 0, 0);
+    rectanglePlane.enableAttribute(1, 2, 0 , 0);
 
     // Créer les transformations
     createTransformation();
+
+    // Créer les textures
+    Texture2D floorTexture("../textures/groundSeamless.jpg", GL_REPEAT);
+    floorTexture.enableMipmap();
+    Texture2D riverTexture("../textures/waterSeamless.jpg", GL_REPEAT);
+    riverTexture.enableMipmap();
+
 
 
     // Shader program du modèle.
@@ -248,8 +281,13 @@ int main(int argc, char* argv[])
             modelShaderProgram.use();
             drawWorld(modelShaderProgram, projectionViewMatrix);
             setPVMatrix(modelShaderProgram, projectionViewMatrix);
+
+            floorTexture.use();
             squarePlane.draw(GL_TRIANGLES, 6);
+            floorTexture.unuse();
+            riverTexture.use();
             rectanglePlane.draw(GL_TRIANGLES, 6);
+            riverTexture.unuse();
 
         w.swap();
         w.pollEvent();

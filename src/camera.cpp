@@ -34,13 +34,14 @@ glm::mat4 Camera::getThirdPersonViewMatrix()
 	// à partir des attributs de la classe
 
 	// Décalage initial de π/2 radians sur l'orientation
-	float theta = m_orientation.y + glm::pi<float>() / 2.0f;
+	float thetaX = m_orientation.x + glm::pi<float>() / 2.0f;
+	float thetaZ = m_orientation.y + glm::pi<float>() / 2.0f;
 
 	// Création de la sphère de rayon 6
 	float radius = 6.0f;
-	float x = radius * glm::cos(theta);
-	float y = 6.0f;  // Hauteur fixe de la caméra
-	float z = radius * glm::sin(theta);
+	float x = radius * glm::sin(thetaZ) * glm::cos(thetaX);
+	float y = 1.0f;  // Hauteur fixe de la caméra
+	float z = radius * glm::sin(thetaZ) * glm::sin(thetaX);
 
 	// Position de la caméra
 	glm::vec3 cameraPosition = m_position + glm::vec3(x, y, z);

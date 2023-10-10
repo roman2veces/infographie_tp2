@@ -9,18 +9,18 @@ const GLfloat streamLength = 20.0f;
 
 GLfloat rectangleVertices[] = {
     // Position             // Couleur
-    -planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f, 0.0f, 0.0f, 1.0f,
-    -planeSize / 2.0f, -1.0f, -planeSize / 2.0f, 0.0f, 0.0f, 1.0f,
-    planeSize / 2.0f, -1.0f, -planeSize / 2.0f, 0.0f, 0.0f, 1.0f,
-    planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f, 0.0f, 0.0f, 1.0f
+    -planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f,
+    -planeSize / 2.0f, -1.0f, -planeSize / 2.0f,
+    planeSize / 2.0f, -1.0f, -planeSize / 2.0f,
+    planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f
 };
 
 GLfloat squarePlaneVertices[] = {
     // Position             // Couleur
-   -planeSize / 2.0f, -1.0f, -planeSize / 2.0f, 0.0f, 1.0f, 0.0f,
-   -planeSize / 2.0f, -1.0f, planeSize / 2.0f, 0.0f, 1.0f, 0.0f,
-   planeSize / 2.0f, -1.0f, planeSize / 2.0f, 0.0f, 1.0f, 0.0f,
-   planeSize / 2.0f, -1.0f, -planeSize / 2.0f, 0.0f, 1.0f, 0.0f
+   -planeSize / 2.0f, -1.0f, -planeSize / 2.0f,
+   -planeSize / 2.0f, -1.0f, planeSize / 2.0f,
+   planeSize / 2.0f, -1.0f, planeSize / 2.0f,
+   planeSize / 2.0f, -1.0f, -planeSize / 2.0f,
 };
 
 // Indices pour dessiner le carré comme deux triangles
