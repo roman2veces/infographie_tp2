@@ -14,6 +14,7 @@
 #include "vertices_data.h"
 #include "shapes.h"
 #include "./model.h"
+#include "camera.h"
 
 void printGLInfo();
 
@@ -27,6 +28,9 @@ const int POSITION_ATTRIBUT_INDEX = 0, COLOR_ATTRIBUT_INDEX = 1;
 const int POSITION_ATTRIBUT_OFFSET = 0, COLOR_ATTRIBUT_OFFSET = 3;
 const int THREE_COMPONENTS = 3, SIX_COMPONENTS = 6;
 const char *MVP_NAME = "mvp";
+
+glm::vec3 cameraPosition(-15.0f, 0.0f, 0.0f);
+glm::vec2 cameraOrientation(0.0f, 0.0f);
 
 // Define RGBA background colors
 const int R = 1.0;
@@ -48,6 +52,63 @@ void shadersSetup(ShaderProgram &shaderProgram, std::string vertexShaderPath, st
     shaderProgram.attachShader(vertexShader);
     shaderProgram.attachShader(fragmentShader);
     shaderProgram.link();
+}
+
+void setPVMatrix(ShaderProgram &modelShaderProgram, float ratio)
+{
+    Camera camera(cameraPosition, cameraOrientation);
+    glm::mat4 viewMatrix;
+    // Obtention de la matrice de vue en première personne
+    // if (isFirstPersonCam)
+    viewMatrix = camera.getFirstPersonViewMatrix();
+    // else
+    // viewMatrix = camera.getThirdPersonViewMatrix();
+    glm::mat4 projectionMatrix(1.0);
+    projectionMatrix = glm::perspective(glm::radians(70.0f), ratio, 0.1f, 10.0f);
+    GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
+
+    glm::mat4 matrix = projectionMatrix * viewMatrix;
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
+
+void handleKeyBoardEvent(Window &w)
+{
+    if (w.getKeyHold(Window::Key::W) || w.getKeyPress(Window::Key::W))
+    {
+        cameraPosition.z -= 0.1f;
+    }
+    if (w.getKeyHold(Window::Key::S) || w.getKeyPress(Window::Key::S))
+    {
+        cameraPosition.z += 0.1f;
+    }
+    if (w.getKeyHold(Window::Key::A) || w.getKeyPress(Window::Key::A))
+    {
+        cameraPosition.x -= 0.1f;
+    }
+    if (w.getKeyHold(Window::Key::D) || w.getKeyPress(Window::Key::D))
+    {
+        cameraPosition.x += 0.1f;
+    }
+}
+
+void handleMouseEvent(Window &w)
+{
+    // Choisir la bonne caméra
+    // setCameraPerson(w);
+    int mouseX, mouseY;
+    float mouseSensitivity = 0.01f;
+    w.getMouseMotion(mouseX, mouseY);
+    cameraOrientation.x += static_cast<float>(mouseX) * mouseSensitivity;
+    cameraOrientation.y += static_cast<float>(mouseY) * mouseSensitivity;
+    // Limitez l'angle vertical
+    if (cameraOrientation.y > 0.1f)
+    {
+        cameraOrientation.y = 0.1f;
+    }
+    else if (cameraOrientation.y < -0.1f)
+    {
+        cameraOrientation.y = -0.1f;
+    }
 }
 
 void createFloor()
@@ -151,19 +212,19 @@ int main(int argc, char *argv[])
 
     while (isRunning)
     {
+        float ratio = (float)w.getWidth() / (float)w.getHeight();
         if (w.shouldResize())
             glViewport(0, 0, w.getWidth(), w.getHeight());
+
+        handleMouseEvent(w);
+        handleKeyBoardEvent(w);
 
         // TODO Partie 1: Nettoyer les tampons appropriées.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         modelShaderProgram.use();
-        // treeModel.draw();
-        // suzanneModel.draw();
-        // rockModel.draw();
         mushroomModel.draw();
-        // cube.draw(GL_TRIANGLES, 36);
-        // calculateMVP(angleDeg, (float)w.getWidth(), (float)w.getHeight(), mvpLocation);
+        setPVMatrix(modelShaderProgram, ratio);
 
         w.swap();
         w.pollEvent();
