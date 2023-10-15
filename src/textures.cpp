@@ -84,37 +84,31 @@ TextureCubeMap::TextureCubeMap(const char** pathes)
     int heights[N_TEXTURES];
     int nChannels[N_TEXTURES];
     stbi_set_flip_vertically_on_load(false);
+    glGenTextures(1, &m_id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
     for (unsigned int i = 0; i < 6; i++)
     {
         datas[i] = stbi_load(pathes[i], &widths[i], &heights[i], &nChannels[i], 0);
         if (datas[i] == NULL)
             std::cout << "Error loading texture \"" << pathes[i] << "\": " << stbi_failure_reason() << std::endl;
+        if (datas[i]) {
+            GLenum format;
+            if (nChannels[i] == 1)
+                format = GL_RED;
+            else if (nChannels[i] == 3)
+                format = GL_RGB;
+            else if (nChannels[i] == 4)
+                format = GL_RGBA;
+            else {
+                std::cout << "Unsupported image format: " << nChannels[i] << " channels" << std::endl;
+                // Gérer l'erreur ou l'incompatibilité du format d'image ici
+                stbi_image_free(datas[i]);
+                return;
+            }
+
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, widths[i], heights[i], 0, format, GL_UNSIGNED_BYTE, datas[i]);
+        }
     }
-    
-	// TODO: Chargement des textures du cubemap.
-    glGenTextures(1, &m_id);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
-
-    // Chargement des textures du cubemap
-    for (unsigned int i = 0; i < 6; i++)
-    {
-        GLenum format;
-        if (nChannels[i] == 3) {
-            format = GL_RGB;
-        }
-        else if (nChannels[i] == 4) {
-            format = GL_RGBA;
-        }
-        else {
-            std::cout << "Unsupported image format: " << nChannels[i] << " channels" << std::endl;
-            // Gérer l'erreur ou l'incompatibilité du format d'image ici
-            stbi_image_free(datas[i]);
-            return;
-        }
-
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, widths[i], heights[i], 0, format, GL_UNSIGNED_BYTE, datas[i]);
-    }
-
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

@@ -32,6 +32,14 @@ const int THREE_COMPONENTS = 3, SIX_COMPONENTS = 6;
 const char *MVP_NAME = "mvp";
 const int N_ROWS = 7;
 const int N_GROUPS = N_ROWS * N_ROWS;
+const char* SKY_BOXES_PATHES[] = {
+    "../textures/skybox/Daylight Box_Right.bmp",
+    "../textures/skybox/Daylight Box_Left.bmp",
+    "../textures/skybox/Daylight Box_Top.bmp",
+    "../textures/skybox/Daylight Box_Bottom.bmp",
+    "../textures/skybox/Daylight Box_Front.bmp",
+    "../textures/skybox/Daylight Box_Back.bmp"
+};
 
 // GLOBAL VARIABLES
 glm::vec3 cameraPosition(-15.0f, -1.0f, 0.0f); //position initiale de la camera ou la placer?
@@ -217,6 +225,45 @@ void drawWorld(ShaderProgram& modelShaderProgram, glm::mat4 & projectionViewMatr
     suzanneTexture.unuse();
 }
 
+void drawSky(ShaderProgram& skyBoxlShaderProgram, glm::mat4& projectionMatrix) {
+    TextureCubeMap cubeMapTexture(SKY_BOXES_PATHES);
+    // Créer le skybox
+    BasicShapeArrays skyBox(skyboxVertices, sizeof(skyboxVertices));
+    skyBox.enableAttribute(0, 3, 0, 0);
+    // Sauvegardez l'ancienne fonction du test de profondeur
+    GLenum oldDepthFunc;
+    glGetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldDepthFunc);
+    glDepthFunc(GL_GEQUAL);
+    glDisable(GL_DEPTH_TEST);
+    skyBoxlShaderProgram.use();
+    glm::mat4 viewMatrixNoTranslation = glm::mat4(glm::mat3(getViewMatrix()));
+    glm::mat4 skymvp = projectionMatrix * viewMatrixNoTranslation * glm::mat4(1.0f);
+    glUniformMatrix4fv(skyBoxlShaderProgram.getUniformLoc(MVP_NAME), 1, GL_FALSE, &skymvp[0][0]);
+    cubeMapTexture.use();
+    skyBox.draw(GL_TRIANGLES, 36);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(oldDepthFunc);
+}
+
+void drawHud(ShaderProgram& hudShaderProgram, Texture2D& HudTexture) {
+    BasicShapeElements hud(quadVertices, sizeof(quadVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
+    hud.enableAttribute(0, 3, 0, 0);
+    hud.enableAttribute(1, 2, 0, 0);
+    // Configurer le shader et la projection
+    hudShaderProgram.use();
+    GLint location = hudShaderProgram.getUniformLoc(MVP_NAME);
+    // attributs de projection
+    float halfHeight = 15.0f;
+    float halfWidth = 15.0f;
+    glm::mat4 projection = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1.0f, 1.0f);
+    glm::mat4 hudmvp = glm::translate(projection, glm::vec3(-13.0f, -13.0f, 0.0f));
+    glUniformMatrix4fv(location, 1, GL_FALSE, &hudmvp[0][0]);
+    HudTexture.use();
+    hud.draw(GL_TRIANGLES, 6);
+    HudTexture.unuse();
+
+}
+
 int main(int argc, char* argv[])
 {
     Window w;
@@ -250,12 +297,21 @@ int main(int argc, char* argv[])
     floorTexture.enableMipmap();
     Texture2D riverTexture("../textures/waterSeamless.jpg", GL_REPEAT);
     riverTexture.enableMipmap();
-
-
+    Texture2D HudTexture("../textures/heart.png", GL_REPEAT);
+    HudTexture.enableMipmap();
 
     // Shader program du modèle.
     ShaderProgram modelShaderProgram;
     shadersSetup(modelShaderProgram, "shaders/model.vs.glsl", "shaders/model.fs.glsl");
+    // Shader program de la rivière.
+    ShaderProgram riverShaderProgram;
+    shadersSetup(riverShaderProgram, "shaders/river.vs.glsl", "shaders/river.fs.glsl");
+    // Shader program du skybox
+    ShaderProgram skyBoxlShaderProgram;
+    shadersSetup(skyBoxlShaderProgram, "shaders/skybox.vs.glsl", "shaders/skybox.fs.glsl");
+    // Shader program du hud
+    ShaderProgram hudShaderProgram;
+    shadersSetup(hudShaderProgram, "shaders/hud.vs.glsl", "shaders/hud.fs.glsl");
 
     // Couleur de fond blanche
     glClearColor(R, G, B, A);
@@ -278,16 +334,29 @@ int main(int argc, char* argv[])
         // TODO Partie 1: Nettoyer les tampons appropriées.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        drawSky(skyBoxlShaderProgram, projectionMatrix);
             modelShaderProgram.use();
             drawWorld(modelShaderProgram, projectionViewMatrix);
             setPVMatrix(modelShaderProgram, projectionViewMatrix);
 
+            modelShaderProgram.use();
+
             floorTexture.use();
             squarePlane.draw(GL_TRIANGLES, 6);
             floorTexture.unuse();
+
+            // Draw river
+            riverShaderProgram.use();
+            float currentTime = w.getTick() / 1000.0f;
+            GLint riverlocation = riverShaderProgram.getUniformLoc(MVP_NAME);
+            GLint timeLocation = riverShaderProgram.getUniformLoc("time");
+            glUniform1f(timeLocation, currentTime);
             riverTexture.use();
+            glUniformMatrix4fv(riverlocation, 1, GL_FALSE, &projectionViewMatrix[0][0]);
             rectanglePlane.draw(GL_TRIANGLES, 6);
             riverTexture.unuse();
+
+            drawHud(hudShaderProgram, HudTexture);
 
         w.swap();
         w.pollEvent();
