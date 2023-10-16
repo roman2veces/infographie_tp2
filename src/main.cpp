@@ -28,6 +28,7 @@ const int POSITION_ATTRIBUT_INDEX = 0, COLOR_ATTRIBUT_INDEX = 1;
 const int POSITION_ATTRIBUT_OFFSET = 0, COLOR_ATTRIBUT_OFFSET = 3;
 const int THREE_COMPONENTS = 3, SIX_COMPONENTS = 6;
 const char *MVP_NAME = "mvp";
+GLint mvpLocation;
 
 glm::vec3 cameraPosition(-15.0f, 0.0f, 0.0f);
 glm::vec2 cameraOrientation(0.0f, 0.0f);
@@ -168,7 +169,7 @@ int main(int argc, char *argv[])
     bool isFirstPersonCam = false;
 
     // Création des models
-    Model mushroomModel("../models/mushroom.obj");
+    // Model mushroomModel("../models/mushroom.obj");
     // Model rockModel("../models/rock.obj");
     // Model suzanneModel("../models/suzanne.obj");
     // Model treeModel("../models/tree.obj");
@@ -176,12 +177,12 @@ int main(int argc, char *argv[])
     // TODO Partie 2: Shader program de transformation.
     // ... transform;
 
-    // ShaderProgram transformShaderProgram;
-    // shadersSetup(transformShaderProgram, "shaders/transform.vs.glsl", "shaders/transform.fs.glsl");
-    // GLint mvpLocation = transformShaderProgram.getUniformLoc(MVP_NAME);
+    ShaderProgram transformShaderProgram;
+    shadersSetup(transformShaderProgram, "shaders/transform.vs.glsl", "shaders/transform.fs.glsl");
+    mvpLocation = transformShaderProgram.getUniformLoc(MVP_NAME);
 
-    ShaderProgram modelShaderProgram;
-    shadersSetup(modelShaderProgram, "shaders/model.vs.glsl", "shaders/model.fs.glsl");
+    // ShaderProgram modelShaderProgram;
+    // shadersSetup(modelShaderProgram, "shaders/model.vs.glsl", "shaders/model.fs.glsl");
     // shadersSetup(modelShaderProgram, "shaders/transform.vs.glsl", "shaders/transform.fs.glsl");
     // ... location;
     // GLint mvpLocation = modelShaderProgram.getUniformLoc(MVP_NAME);
@@ -222,9 +223,13 @@ int main(int argc, char *argv[])
         // TODO Partie 1: Nettoyer les tampons appropriées.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        modelShaderProgram.use();
-        mushroomModel.draw();
-        setPVMatrix(modelShaderProgram, ratio);
+        // modelShaderProgram.use();
+        // mushroomModel.draw();
+        // setPVMatrix(modelShaderProgram, ratio);
+        transformShaderProgram.use();
+        angleDeg = 50.5f;
+        calculateMVP(angleDeg, float(w.getWidth()), float(w.getHeight()), mvpLocation);
+        cube.draw(GL_TRIANGLES, 36);
 
         w.swap();
         w.pollEvent();
