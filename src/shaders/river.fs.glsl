@@ -8,6 +8,6 @@ uniform sampler2D riverTexture;
 out vec4 FragColor;
 
 void main() {
-
-    FragColor = texture2D(riverTexture, fragmentTexCoord);
+    // FragColor = texture2D(riverTexture, fragmentTexCoord);
+    FragColor = texture(riverTexture, fragmentTexCoord);
 }

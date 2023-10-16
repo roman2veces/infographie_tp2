@@ -257,8 +257,8 @@ void drawSky(ShaderProgram &skyBoxlShaderProgram, glm::mat4 &projectionMatrix)
 void drawHud(ShaderProgram &hudShaderProgram, Texture2D &HudTexture)
 {
     BasicShapeElements hud(quadVertices, sizeof(quadVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
-    hud.enableAttribute(0, 3, 0, 0);
-    hud.enableAttribute(1, 2, 0, 0);
+    hud.enableAttribute(0, 3, 5, 0);
+    hud.enableAttribute(1, 2, 5, 3);
     // Configurer le shader et la projection
     hudShaderProgram.use();
     GLint location = hudShaderProgram.getUniformLoc(MVP_NAME);
@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
     floorTexture.enableMipmap();
     Texture2D riverTexture("../textures/waterSeamless.jpg", GL_REPEAT);
     riverTexture.enableMipmap();
-    Texture2D HudTexture("../textures/heart.png", GL_REPEAT);
+    Texture2D HudTexture("../textures/heart.png", GL_CLAMP_TO_EDGE);
     HudTexture.enableMipmap();
 
     // Shader program du modèle.
