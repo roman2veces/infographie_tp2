@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <SDL.h>
 
-
 class Window
 {
 public:
@@ -17,38 +16,38 @@ public:
         S = SDLK_s,
         D = SDLK_d,
     };
-    
+
 public:
     Window();
     ~Window();
-    
+
     bool init();
-    
-    void swap();    
+
+    void swap();
     void pollEvent();
-    
+
     bool getKeyHold(Key k);
     bool getKeyPress(Key k);
-    
-    void getMouseMotion(int& x, int& y);
+
+    void getMouseMotion(int &x, int &y);
     int getMouseScrollDirection();
-    
+
     unsigned int getTick();
-    
+
     bool shouldClose();
     bool shouldResize();
-    
+
     int getWidth();
     int getHeight();
 
 private:
-    SDL_Window* m_window;
+    SDL_Window *m_window;
     SDL_GLContext m_context;
-    
+
     bool m_shouldClose;
     bool m_shouldResize;
     int m_width, m_height;
-    
+
     std::unordered_map<Key, bool> m_keys;
     int m_mouseX, m_mouseY, m_scroll;
 };

@@ -122,7 +122,7 @@ BasicShapeElements::BasicShapeElements()
     glGenBuffers(1, &m_ebo);
 }
 
-BasicShapeElements::BasicShapeElements(const GLfloat *data, GLsizeiptr byteSize, const GLuint*indexes, GLsizeiptr indexesByteSize)
+BasicShapeElements::BasicShapeElements(const GLfloat *data, GLsizeiptr byteSize, const GLuint *indexes, GLsizeiptr indexesByteSize)
 {
     // TODO Partie 1: Générer et bind le vao de la forme.
     glGenVertexArrays(1, &m_vao);
@@ -141,10 +141,11 @@ BasicShapeElements::BasicShapeElements(const GLfloat *data, GLsizeiptr byteSize,
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexesByteSize, indexes, GL_STATIC_DRAW);
 }
 
-void BasicShapeElements::setData(const GLfloat* data, GLsizeiptr byteSize, const GLuint* indexes, GLsizeiptr indexesByteSize)
+void BasicShapeElements::setData(const GLfloat *data, GLsizeiptr byteSize, const GLuint *indexes, GLsizeiptr indexesByteSize)
 {
     glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);    glGenBuffers(1, &m_vbo);
+    glBindVertexArray(m_vao);
+    glGenBuffers(1, &m_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, byteSize, data, GL_STATIC_DRAW);
 

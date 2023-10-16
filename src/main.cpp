@@ -32,18 +32,17 @@ const int THREE_COMPONENTS = 3, SIX_COMPONENTS = 6;
 const char *MVP_NAME = "mvp";
 const int N_ROWS = 7;
 const int N_GROUPS = N_ROWS * N_ROWS;
-const char* SKY_BOXES_PATHES[] = {
+const char *SKY_BOXES_PATHES[] = {
     "../textures/skybox/Daylight Box_Right.bmp",
     "../textures/skybox/Daylight Box_Left.bmp",
     "../textures/skybox/Daylight Box_Top.bmp",
     "../textures/skybox/Daylight Box_Bottom.bmp",
     "../textures/skybox/Daylight Box_Front.bmp",
-    "../textures/skybox/Daylight Box_Back.bmp"
-};
+    "../textures/skybox/Daylight Box_Back.bmp"};
 
 // GLOBAL VARIABLES
-glm::vec3 cameraPosition(-15.0f, -1.0f, 0.0f); //position initiale de la camera ou la placer?
-glm::vec2 cameraOrientation(0.0f, 0.0f);    // Orientation initiale (regard droit devant)
+glm::vec3 cameraPosition(-15.0f, -1.0f, 0.0f); // position initiale de la camera ou la placer?
+glm::vec2 cameraOrientation(0.0f, 0.0f);       // Orientation initiale (regard droit devant)
 bool isFirstPersonCam = false;
 glm::mat4 groupsTransform[N_GROUPS];
 glm::mat4 treeTransform[N_GROUPS];
@@ -73,33 +72,32 @@ void shadersSetup(ShaderProgram &shaderProgram, std::string vertexShaderPath, st
     shaderProgram.link();
 }
 
-void createFloor() {
-
-}
-
-
-
-glm::mat4 getViewMatrix() {
+glm::mat4 getViewMatrix()
+{
     if (isFirstPersonCam)
-       return camera.getFirstPersonViewMatrix();
+        return camera.getFirstPersonViewMatrix();
     else
         return camera.getThirdPersonViewMatrix();
 }
 
-void setPVMatrix(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatrix){
-            GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
-            GLint textureLocation = modelShaderProgram.getUniformLoc("sampler2d");
-            glm::mat4 matrix = glm::mat4(1.0f) * projectionViewMatrix;
-            glUniformMatrix4fv(location, 1, GL_FALSE, &projectionViewMatrix[0][0]); }
+void setPVMatrix(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatrix)
+{
+    GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
+    GLint textureLocation = modelShaderProgram.getUniformLoc("sampler2d");
+    glm::mat4 matrix = glm::mat4(1.0f) * projectionViewMatrix;
+    glUniformMatrix4fv(location, 1, GL_FALSE, &projectionViewMatrix[0][0]);
+}
 
-void setCameraPerson(Window& w) {
-    if(w.getMouseScrollDirection() == 1)
+void setCameraPerson(Window &w)
+{
+    if (w.getMouseScrollDirection() == 1)
         isFirstPersonCam = true;
-    else if(w.getMouseScrollDirection() == -1)
+    else if (w.getMouseScrollDirection() == -1)
         isFirstPersonCam = false;
 }
 
-void handleMouseEvent(Window& w) {
+void handleMouseEvent(Window &w)
+{
     // Choisir la bonne caméra
     setCameraPerson(w);
     int mouseX, mouseY;
@@ -107,35 +105,45 @@ void handleMouseEvent(Window& w) {
     w.getMouseMotion(mouseX, mouseY);
     cameraOrientation.x += static_cast<float>(mouseX) * mouseSensitivity;
     cameraOrientation.y += static_cast<float>(mouseY) * mouseSensitivity;
-    // Limitez l'angle vertical 
-    if (cameraOrientation.y > 0.1f) {
+    // Limitez l'angle vertical
+    if (cameraOrientation.y > 0.1f)
+    {
         cameraOrientation.y = 0.1f;
     }
-    else if (cameraOrientation.y < -0.1f) {
+    else if (cameraOrientation.y < -0.1f)
+    {
         cameraOrientation.y = -0.1f;
     }
 }
 
-void handleKeyBoardEvent(Window &w) {
-    if (w.getKeyHold(Window::Key::W) || w.getKeyPress(Window::Key::W)) {
+void handleKeyBoardEvent(Window &w)
+{
+    if (w.getKeyHold(Window::Key::W) || w.getKeyPress(Window::Key::W))
+    {
         cameraPosition.z -= 0.1f;
     }
-    if (w.getKeyHold(Window::Key::S) || w.getKeyPress(Window::Key::S)) {
+    if (w.getKeyHold(Window::Key::S) || w.getKeyPress(Window::Key::S))
+    {
         cameraPosition.z += 0.1f;
     }
-    if (w.getKeyHold(Window::Key::A) || w.getKeyPress(Window::Key::A)) {
+    if (w.getKeyHold(Window::Key::A) || w.getKeyPress(Window::Key::A))
+    {
         cameraPosition.x -= 0.1f;
     }
-    if (w.getKeyHold(Window::Key::D) || w.getKeyPress(Window::Key::D)) {
+    if (w.getKeyHold(Window::Key::D) || w.getKeyPress(Window::Key::D))
+    {
         cameraPosition.x += 0.1f;
     }
 }
 
 /**Take  a glm::mat4 groupsTransform where the group will be stored*/
-void createTransformation() {
+void createTransformation()
+{
     // Initialisation des matrices de transformation pour chaque groupe
-    for (int row = 0; row < N_ROWS; row++) {
-        for (int col = 0; col < N_ROWS; col++) {
+    for (int row = 0; row < N_ROWS; row++)
+    {
+        for (int col = 0; col < N_ROWS; col++)
+        {
             int groupIndex = row * N_ROWS + col;
 
             // Génération de la transformation aléatoire pour le groupe
@@ -169,17 +177,17 @@ void createTransformation() {
             mushroomTransform[groupIndex] = glm::scale(mushroomTransform[groupIndex], glm::vec3(0.05f));
         }
     }
-    
 }
 
-void drawWorld(ShaderProgram& modelShaderProgram, glm::mat4 & projectionViewMatrix) {
+void drawWorld(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatrix)
+{
     // Création des models
     Model mushroomModel("../models/mushroom.obj");
     Model rockModel("../models/rock.obj");
     Model suzanneModel("../models/suzanne.obj");
     Model treeModel("../models/tree.obj");
 
-    // Textures 
+    // Textures
     Texture2D suzanneTexture("../models/suzanneTexture.png", GL_CLAMP_TO_EDGE);
     suzanneTexture.enableMipmap();
     Texture2D treeTexture("../models/treeTexture.png", GL_CLAMP_TO_EDGE);
@@ -193,8 +201,8 @@ void drawWorld(ShaderProgram& modelShaderProgram, glm::mat4 & projectionViewMatr
     {
         GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
         glm::mat4 treeMatrix = projectionViewMatrix * groupsTransform[i] * treeTransform[i];
-         glUniformMatrix4fv(location, 1, GL_FALSE, &treeMatrix[0][0]); 
-         treeTexture.use();
+        glUniformMatrix4fv(location, 1, GL_FALSE, &treeMatrix[0][0]);
+        treeTexture.use();
         treeModel.draw();
         treeTexture.unuse();
 
@@ -213,26 +221,27 @@ void drawWorld(ShaderProgram& modelShaderProgram, glm::mat4 & projectionViewMatr
 
     GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
     glm::mat4 suzanneMatrix;
-    if(isFirstPersonCam)
-        suzanneMatrix = projectionViewMatrix * glm::mat4(1.0f);
-    else {
+    if (!isFirstPersonCam)
+    {
         suzanneMatrix = projectionViewMatrix * glm::translate(glm::mat4(1.0f), cameraPosition);
         suzanneMatrix = glm::scale(suzanneMatrix, glm::vec3(0.5f));
+
+        glUniformMatrix4fv(location, 1, GL_FALSE, &suzanneMatrix[0][0]);
+        suzanneTexture.use();
+        suzanneModel.draw();
+        suzanneTexture.unuse();
     }
-    glUniformMatrix4fv(location, 1, GL_FALSE, &suzanneMatrix[0][0]);
-    suzanneTexture.use();
-    suzanneModel.draw();
-    suzanneTexture.unuse();
 }
 
-void drawSky(ShaderProgram& skyBoxlShaderProgram, glm::mat4& projectionMatrix) {
+void drawSky(ShaderProgram &skyBoxlShaderProgram, glm::mat4 &projectionMatrix)
+{
     TextureCubeMap cubeMapTexture(SKY_BOXES_PATHES);
     // Créer le skybox
     BasicShapeArrays skyBox(skyboxVertices, sizeof(skyboxVertices));
     skyBox.enableAttribute(0, 3, 0, 0);
     // Sauvegardez l'ancienne fonction du test de profondeur
     GLenum oldDepthFunc;
-    glGetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldDepthFunc);
+    glGetIntegerv(GL_DEPTH_FUNC, (GLint *)&oldDepthFunc);
     glDepthFunc(GL_GEQUAL);
     glDisable(GL_DEPTH_TEST);
     skyBoxlShaderProgram.use();
@@ -245,7 +254,8 @@ void drawSky(ShaderProgram& skyBoxlShaderProgram, glm::mat4& projectionMatrix) {
     glDepthFunc(oldDepthFunc);
 }
 
-void drawHud(ShaderProgram& hudShaderProgram, Texture2D& HudTexture) {
+void drawHud(ShaderProgram &hudShaderProgram, Texture2D &HudTexture)
+{
     BasicShapeElements hud(quadVertices, sizeof(quadVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
     hud.enableAttribute(0, 3, 0, 0);
     hud.enableAttribute(1, 2, 0, 0);
@@ -261,10 +271,9 @@ void drawHud(ShaderProgram& hudShaderProgram, Texture2D& HudTexture) {
     HudTexture.use();
     hud.draw(GL_TRIANGLES, 6);
     HudTexture.unuse();
-
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     Window w;
     if (!w.init())
@@ -287,7 +296,7 @@ int main(int argc, char* argv[])
     // Créer un rectangle
     BasicShapeElements rectanglePlane(rectangleVertices, sizeof(rectangleVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
     rectanglePlane.enableAttribute(0, 3, 0, 0);
-    rectanglePlane.enableAttribute(1, 2, 0 , 0);
+    rectanglePlane.enableAttribute(1, 2, 0, 0);
 
     // Créer les transformations
     createTransformation();
@@ -335,28 +344,28 @@ int main(int argc, char* argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         drawSky(skyBoxlShaderProgram, projectionMatrix);
-            modelShaderProgram.use();
-            drawWorld(modelShaderProgram, projectionViewMatrix);
-            setPVMatrix(modelShaderProgram, projectionViewMatrix);
+        modelShaderProgram.use();
+        drawWorld(modelShaderProgram, projectionViewMatrix);
+        setPVMatrix(modelShaderProgram, projectionViewMatrix);
 
-            modelShaderProgram.use();
+        modelShaderProgram.use();
 
-            floorTexture.use();
-            squarePlane.draw(GL_TRIANGLES, 6);
-            floorTexture.unuse();
+        floorTexture.use();
+        squarePlane.draw(GL_TRIANGLES, 6);
+        floorTexture.unuse();
 
-            // Draw river
-            riverShaderProgram.use();
-            float currentTime = w.getTick() / 1000.0f;
-            GLint riverlocation = riverShaderProgram.getUniformLoc(MVP_NAME);
-            GLint timeLocation = riverShaderProgram.getUniformLoc("time");
-            glUniform1f(timeLocation, currentTime);
-            riverTexture.use();
-            glUniformMatrix4fv(riverlocation, 1, GL_FALSE, &projectionViewMatrix[0][0]);
-            rectanglePlane.draw(GL_TRIANGLES, 6);
-            riverTexture.unuse();
+        // Draw river
+        riverShaderProgram.use();
+        float currentTime = w.getTick() / 1000.0f;
+        GLint riverlocation = riverShaderProgram.getUniformLoc(MVP_NAME);
+        GLint timeLocation = riverShaderProgram.getUniformLoc("time");
+        glUniform1f(timeLocation, currentTime);
+        riverTexture.use();
+        glUniformMatrix4fv(riverlocation, 1, GL_FALSE, &projectionViewMatrix[0][0]);
+        rectanglePlane.draw(GL_TRIANGLES, 6);
+        riverTexture.unuse();
 
-            drawHud(hudShaderProgram, HudTexture);
+        drawHud(hudShaderProgram, HudTexture);
 
         w.swap();
         w.pollEvent();

@@ -3,7 +3,7 @@
 
 // Vous pouvez merge ce fichier avec celui du tp1
 
-// Dimensions du plan carré
+// Dimensions du plan carrï¿½
 const GLfloat planeSize = 60.0f;
 const GLfloat streamLength = 20.0f;
 
@@ -12,29 +12,43 @@ GLfloat rectangleVertices[] = {
     -planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f,
     -planeSize / 2.0f, -1.0f, -planeSize / 2.0f,
     planeSize / 2.0f, -1.0f, -planeSize / 2.0f,
-    planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f
-};
+    planeSize / 2.0f, -1.0f, -streamLength - planeSize / 2.0f};
 
 GLfloat squarePlaneVertices[] = {
     // Position             // Couleur
-   -planeSize / 2.0f, -1.0f, -planeSize / 2.0f,
-   -planeSize / 2.0f, -1.0f, planeSize / 2.0f,
-   planeSize / 2.0f, -1.0f, planeSize / 2.0f,
-   planeSize / 2.0f, -1.0f, -planeSize / 2.0f,
+    -planeSize / 2.0f,
+    -1.0f,
+    -planeSize / 2.0f,
+    -planeSize / 2.0f,
+    -1.0f,
+    planeSize / 2.0f,
+    planeSize / 2.0f,
+    -1.0f,
+    planeSize / 2.0f,
+    planeSize / 2.0f,
+    -1.0f,
+    -planeSize / 2.0f,
 };
 
-// Indices pour dessiner le carré comme deux triangles
+// Indices pour dessiner le carrï¿½ comme deux triangles
 GLuint squarePlaneIndices[] = {
     0, 1, 2,
-    0, 2, 3
-};
+    0, 2, 3};
 
 // Indice pour le Hud
 GLfloat quadVertices[] = {
-        -1.0f, -1.0f, 0.0f, 
-        -1.0f, 1.0f, 0.0f, 
-        1.0f, 1.0f, 0.0f, 
-        1.0f, -1.0f, 0.0f, 
+    -1.0f,
+    -1.0f,
+    0.0f,
+    -1.0f,
+    1.0f,
+    0.0f,
+    1.0f,
+    1.0f,
+    0.0f,
+    1.0f,
+    -1.0f,
+    0.0f,
 };
 
 const GLfloat cubeVertices[] = {
@@ -235,101 +249,152 @@ const GLuint cubeIndexes[] = {
 };
 
 const GLfloat skyboxVertices[] = {
-	-1.0f,  1.0f, -1.0f,
-	-1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
 
-	-1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f,  1.0f,
-	-1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, -1.0f, 1.0f,
 
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
 
-	-1.0f, -1.0f,  1.0f,
-	-1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f,
+    -1.0f, -1.0f, 1.0f,
 
-	-1.0f,  1.0f, -1.0f,
-	 1.0f,  1.0f, -1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f, -1.0f,
+    -1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, -1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, -1.0f,
 
-	-1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f
-};
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f, 1.0f,
+    1.0f, -1.0f, -1.0f,
+    1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f, 1.0f,
+    1.0f, -1.0f, 1.0f};
 
 const GLfloat grassPosition[] = {
-	0.433013f, 0.0f, -0.25f,
-	-0.433013f, 0.75f, 0.25f,
-	0.433013f, 0.75f, -0.25f,
+    0.433013f,
+    0.0f,
+    -0.25f,
+    -0.433013f,
+    0.75f,
+    0.25f,
+    0.433013f,
+    0.75f,
+    -0.25f,
 
-	0.433013f,  0.0f,  -0.25f,
-	-0.433013f, 0.0f,  0.25f,
-	-0.433013f,  0.75f,  0.25f,
+    0.433013f,
+    0.0f,
+    -0.25f,
+    -0.433013f,
+    0.0f,
+    0.25f,
+    -0.433013f,
+    0.75f,
+    0.25f,
 
-	0.0f     ,  0.0f, -0.5f,
-	0.0f     ,  0.75f,  0.5f,
-	0.0f     ,  0.0f,  0.5f,
+    0.0f,
+    0.0f,
+    -0.5f,
+    0.0f,
+    0.75f,
+    0.5f,
+    0.0f,
+    0.0f,
+    0.5f,
 
-	0.0f     ,  0.0f, -0.5f,
-	0.0f     ,  0.75f, -0.5f,
-	0.0f     ,  0.75f,  0.5f,
+    0.0f,
+    0.0f,
+    -0.5f,
+    0.0f,
+    0.75f,
+    -0.5f,
+    0.0f,
+    0.75f,
+    0.5f,
 
-	-0.433013f,  0.0f, -0.25f,
-	0.433013f,  0.75f,  0.25f,
-	0.433013f,  0.0f,  0.25f,
+    -0.433013f,
+    0.0f,
+    -0.25f,
+    0.433013f,
+    0.75f,
+    0.25f,
+    0.433013f,
+    0.0f,
+    0.25f,
 
-	-0.433013f,  0.0f, -0.25f,
-	-0.433013f,  0.75f, -0.25f,
-	0.433013f,  0.75f,  0.25f,
+    -0.433013f,
+    0.0f,
+    -0.25f,
+    -0.433013f,
+    0.75f,
+    -0.25f,
+    0.433013f,
+    0.75f,
+    0.25f,
 };
 
 const GLfloat grassTexCoords[] = {
-	0.0f, 0.0f,
-	1.0f, 1.0f,
-	0.0f, 1.0f,
+    0.0f,
+    0.0f,
+    1.0f,
+    1.0f,
+    0.0f,
+    1.0f,
 
-	0.0f, 0.0f,
-	1.0f, 0.0f,
-	1.0f, 1.0f,
+    0.0f,
+    0.0f,
+    1.0f,
+    0.0f,
+    1.0f,
+    1.0f,
 
+    1.0f,
+    0.0f,
+    0.0f,
+    1.0f,
+    0.0f,
+    0.0f,
 
-	1.0f, 0.0f,
-	0.0f, 1.0f,
-	0.0f, 0.0f,
+    1.0f,
+    0.0f,
+    1.0f,
+    1.0f,
+    0.0f,
+    1.0f,
 
-	1.0f, 0.0f,
-	1.0f, 1.0f,
-	0.0f, 1.0f,
+    1.0f,
+    0.0f,
+    0.0f,
+    1.0f,
+    0.0f,
+    0.0f,
 
-
-	1.0f, 0.0f,
-	0.0f, 1.0f,
-	0.0f, 0.0f,
-
-	1.0f, 0.0f,
-	1.0f, 1.0f,
-	0.0f, 1.0f,
+    1.0f,
+    0.0f,
+    1.0f,
+    1.0f,
+    0.0f,
+    1.0f,
 };
 
 #endif // VERTICES_DATA_H

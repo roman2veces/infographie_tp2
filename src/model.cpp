@@ -3,20 +3,20 @@
 #include "obj_loader.h"
 #include <iostream>
 
-Model::Model(const char* path)
+Model::Model(const char *path)
 {
 	// TODO: Initalisation du modèle et des attibuts de la classe
-	std::vector<GLfloat> pos; 
+	std::vector<GLfloat> pos;
 	std::vector<GLuint> indices;
 	this->loadObj(path, pos, indices);
 	this->m_shape = BasicShapeElements();
 	this->m_shape.setData(pos.data(), pos.size() * sizeof(GLfloat), indices.data(), indices.size() * sizeof(GLfloat));
-	this->m_shape.enableAttribute(0, 3, 5* sizeof(GLfloat), 0);
-	this->m_shape.enableAttribute(1, 2, 5* sizeof(GLfloat), 3);
+	this->m_shape.enableAttribute(0, 3, 5 * sizeof(GLfloat), 0);
+	this->m_shape.enableAttribute(1, 2, 5 * sizeof(GLfloat), 3);
 	this->m_count = indices.size();
 }
 
-void Model::loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLuint>& indices)
+void Model::loadObj(const char *path, std::vector<GLfloat> &pos, std::vector<GLuint> &indices)
 {
 	objl::Loader loader;
 	bool loadout = loader.LoadFile(path);

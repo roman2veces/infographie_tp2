@@ -7,17 +7,15 @@
 class Model
 {
 public:
-	Model(const char* path);
+	Model(const char *path);
 	void draw();
 
 private:
-
-	void loadObj(const char* path, std::vector<GLfloat>& pos, std::vector<GLuint>& indices);
+	void loadObj(const char *path, std::vector<GLfloat> &pos, std::vector<GLuint> &indices);
 
 private:
 	BasicShapeElements m_shape;
 	GLsizei m_count;
 };
-
 
 #endif // MODEL_H

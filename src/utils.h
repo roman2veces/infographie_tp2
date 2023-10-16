@@ -3,17 +3,17 @@
 
 double rand01();
 
-void getGroupRandomPos(int groupId, const int N_ROWS, float& x, float& z);
+void getGroupRandomPos(int groupId, const int N_ROWS, float &x, float &z);
 
 // Chemin pour les textures de skybox
 /*
 const char* pathes[] = {
-	"skybox/Daylight Box_Right.bmp",
-	"skybox/Daylight Box_Left.bmp",
-	"skybox/Daylight Box_Top.bmp",
-	"skybox/Daylight Box_Bottom.bmp",
-	"skybox/Daylight Box_Front.bmp",
-	"skybox/Daylight Box_Back.bmp",
+    "skybox/Daylight Box_Right.bmp",
+    "skybox/Daylight Box_Left.bmp",
+    "skybox/Daylight Box_Top.bmp",
+    "skybox/Daylight Box_Bottom.bmp",
+    "skybox/Daylight Box_Front.bmp",
+    "skybox/Daylight Box_Back.bmp",
 };
 */
 
@@ -23,7 +23,7 @@ const char* pathes[] = {
     const int N_GROUPS = N_ROWS * N_ROWS;
 
     glm::mat4 groupsTransform[N_GROUPS];
-    
+
     glm::mat4 treeTransform[N_GROUPS];
     glm::mat4 rockTransform[N_GROUPS];
     glm::mat4 shroomTransform[N_GROUPS];
@@ -41,10 +41,10 @@ const char* pathes[] = {
 
 // Pour la partie 3 avec les positions aléatoires du gazon:
 /*
-	float randomX = -25.0f + rand01() * 50.0f;
-	float randomZ = -25.0f + rand01() * 50.0f;
-	double rval = rand01();
-	int randomTexture = rval > 0.05f ? rval > 0.10f ? 0 : 1 : 2; // Numero de texture entre [0,2]
+    float randomX = -25.0f + rand01() * 50.0f;
+    float randomZ = -25.0f + rand01() * 50.0f;
+    double rval = rand01();
+    int randomTexture = rval > 0.05f ? rval > 0.10f ? 0 : 1 : 2; // Numero de texture entre [0,2]
 */
 
 // Pour le positionnement/dessin des groupes, utilisez
@@ -57,7 +57,6 @@ const char* pathes[] = {
 // Pour le clavier
 // w.getKeyHold(Window::Key::W)
 
-
 // Votre main loop devrait dessiner dans un ordre semblable:
 
 // Ruisseau   - partie 2
@@ -67,6 +66,5 @@ const char* pathes[] = {
 // Modèles (autant que possible tous ensembles, tous les arbres, tous les rochés, tous les champignons)
 // HUD (carré/coeur dans l'écran)
 // Skybox - partie 2
-
 
 #endif // UTILS_H

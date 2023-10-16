@@ -5,13 +5,14 @@
 
 #include <iostream>
 
-Texture2D::Texture2D(const char* path, GLenum wrapMode)
+Texture2D::Texture2D(const char *path, GLenum wrapMode)
 {
     int width, height, nChannels;
     stbi_set_flip_vertically_on_load(true);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    unsigned char* data = stbi_load(path, &width, &height, &nChannels, 0);
-    if (data == NULL) {
+    unsigned char *data = stbi_load(path, &width, &height, &nChannels, 0);
+    if (data == NULL)
+    {
         std::cout << "Error loading texture \"" << path << "\": " << stbi_failure_reason() << std::endl;
         m_id = 0; // Initialisation de l'ID de texture à zéro pour indiquer une texture invalide
         return;
@@ -22,13 +23,16 @@ Texture2D::Texture2D(const char* path, GLenum wrapMode)
     glActiveTexture(GL_TEXTURE0);
 
     GLenum format;
-    if (nChannels == 3) {
+    if (nChannels == 3)
+    {
         format = GL_RGB;
     }
-    else if (nChannels == 4) {
+    else if (nChannels == 4)
+    {
         format = GL_RGBA;
     }
-    else {
+    else
+    {
         std::cout << "Unsupported image format: " << nChannels << " channels" << std::endl;
         // Gérer l'erreur ou l'incompatibilité du format d'image ici
         stbi_image_free(data);
@@ -75,11 +79,10 @@ void Texture2D::unuse()
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-
-TextureCubeMap::TextureCubeMap(const char** pathes)
+TextureCubeMap::TextureCubeMap(const char **pathes)
 {
     const size_t N_TEXTURES = 6;
-    unsigned char* datas[N_TEXTURES];
+    unsigned char *datas[N_TEXTURES];
     int widths[N_TEXTURES];
     int heights[N_TEXTURES];
     int nChannels[N_TEXTURES];
@@ -91,7 +94,8 @@ TextureCubeMap::TextureCubeMap(const char** pathes)
         datas[i] = stbi_load(pathes[i], &widths[i], &heights[i], &nChannels[i], 0);
         if (datas[i] == NULL)
             std::cout << "Error loading texture \"" << pathes[i] << "\": " << stbi_failure_reason() << std::endl;
-        if (datas[i]) {
+        if (datas[i])
+        {
             GLenum format;
             if (nChannels[i] == 1)
                 format = GL_RED;
@@ -99,7 +103,8 @@ TextureCubeMap::TextureCubeMap(const char** pathes)
                 format = GL_RGB;
             else if (nChannels[i] == 4)
                 format = GL_RGBA;
-            else {
+            else
+            {
                 std::cout << "Unsupported image format: " << nChannels[i] << " channels" << std::endl;
                 // Gérer l'erreur ou l'incompatibilité du format d'image ici
                 stbi_image_free(datas[i]);
@@ -120,8 +125,6 @@ TextureCubeMap::TextureCubeMap(const char** pathes)
     {
         stbi_image_free(datas[i]);
     }
-    
-
 }
 
 TextureCubeMap::~TextureCubeMap()

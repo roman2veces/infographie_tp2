@@ -10,8 +10,7 @@ double rand01()
 	return distribution(generator);
 }
 
-
-void getGroupRandomPos(int groupId, const int N_ROWS, float& x, float& z)
+void getGroupRandomPos(int groupId, const int N_ROWS, float &x, float &z)
 {
 	const float GROUP_RADIUS = 3.5;
 	const float GROUP_WIDTH = 2 * GROUP_RADIUS;
