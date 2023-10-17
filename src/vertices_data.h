@@ -35,21 +35,21 @@ GLuint squarePlaneIndices[] = {
     0, 1, 2,
     0, 2, 3};
 
-// Indice pour le Hud
-GLfloat quadVertices[] = {
-    -1.0f,
-    -1.0f,
-    0.0f,
-    -1.0f,
-    1.0f,
-    0.0f,
-    1.0f,
-    1.0f,
-    0.0f,
-    1.0f,
-    -1.0f,
-    0.0f,
-};
+GLfloat hudSquare[] = {
+    -1.0f, -1.0f, 0.0f, 0.0, 0.0,
+    -1.0f, 1.0f, 0.0f, 0.0, 1.0,
+    1.0f, 1.0f, 0.0f, 1.0, 1.0,
+    1.0f, -1.0f, 0.0f, 1.0, 0.0};
+
+const GLfloat grassSquare[] = {
+    -0.5, -0.5, 0.0, 0.0, 0.0,
+    -0.5, 0.5, 0.0, 0.0, 1.0,
+    0.5, 0.5, 0.0, 0.33, 1.0,
+    0.5, -0.5, 0.0, 0.33, 0.0};
+
+const GLuint indexes[] = {
+    0, 1, 2,
+    1, 3, 2};
 
 const GLfloat cubeVertices[] = {
     // +z

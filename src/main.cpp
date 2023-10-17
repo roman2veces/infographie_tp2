@@ -256,9 +256,9 @@ void drawSky(ShaderProgram &skyBoxlShaderProgram, glm::mat4 &projectionMatrix)
 
 void drawHud(ShaderProgram &hudShaderProgram, Texture2D &HudTexture)
 {
-    BasicShapeElements hud(quadVertices, sizeof(quadVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
-    hud.enableAttribute(0, 3, 0, 0);
-    hud.enableAttribute(1, 2, 0, 0);
+    BasicShapeElements hud(hudSquare, sizeof(hudSquare), squarePlaneIndices, sizeof(squarePlaneIndices));
+    hud.enableAttribute(0, 3, 5 * sizeof(float), 0);
+    hud.enableAttribute(1, 2, 5 * sizeof(float), 3);
     // Configurer le shader et la projection
     hudShaderProgram.use();
     GLint location = hudShaderProgram.getUniformLoc(MVP_NAME);
@@ -271,6 +271,32 @@ void drawHud(ShaderProgram &hudShaderProgram, Texture2D &HudTexture)
     HudTexture.use();
     hud.draw(GL_TRIANGLES, 6);
     HudTexture.unuse();
+}
+
+void drawGrass(ShaderProgram &shaderProgram, Texture2D &texture)
+{
+    BasicShapeElements grass(grassSquare, sizeof(grassSquare), squarePlaneIndices, sizeof(squarePlaneIndices));
+    grass.enableAttribute(0, 3, 5 * sizeof(float), 0);
+    grass.enableAttribute(1, 2, 5 * sizeof(float), 3);
+
+    // TODO: use this for random positions and texture
+    // float randomX = -25.0f + rand01() * 50.0f;
+    // float randomZ = -25.0f + rand01() * 50.0f;
+    // double rval = rand01();
+    // int randomTexture = rval > 0.05f ? rval > 0.10f ? 0 : 1 : 2; // Numero de texture entre [0,2]
+
+    shaderProgram.use();
+    GLint location = shaderProgram.getUniformLoc(MVP_NAME);
+    float halfHeight = 15.0f;
+    float halfWidth = 15.0f;
+    glm::mat4 model = glm::mat4(1.0);
+    model = glm::scale(model, glm::vec3(4.0));
+    glm::mat4 projection = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -1.0f, 1.0f);
+    glm::mat4 mvp = projection * model;
+    glUniformMatrix4fv(location, 1, GL_FALSE, &mvp[0][0]);
+    texture.use();
+    grass.draw(GL_TRIANGLES, 6);
+    texture.unuse();
 }
 
 int main(int argc, char *argv[])
@@ -308,6 +334,8 @@ int main(int argc, char *argv[])
     riverTexture.enableMipmap();
     Texture2D HudTexture("../textures/heart.png", GL_REPEAT);
     HudTexture.enableMipmap();
+    Texture2D grassTexture("../textures/grassAtlas.png", GL_REPEAT);
+    grassTexture.enableMipmap();
 
     // Shader program du modèle.
     ShaderProgram modelShaderProgram;
@@ -321,6 +349,9 @@ int main(int argc, char *argv[])
     // Shader program du hud
     ShaderProgram hudShaderProgram;
     shadersSetup(hudShaderProgram, "shaders/hud.vs.glsl", "shaders/hud.fs.glsl");
+    // Shader program du square
+    ShaderProgram squareShaderProgram;
+    shadersSetup(squareShaderProgram, "shaders/square.vs.glsl", "shaders/square.fs.glsl");
 
     // Couleur de fond blanche
     glClearColor(R, G, B, A);
@@ -366,6 +397,7 @@ int main(int argc, char *argv[])
         riverTexture.unuse();
 
         drawHud(hudShaderProgram, HudTexture);
+        // drawGrass(hudShaderProgram, grassTexture);
 
         w.swap();
         w.pollEvent();
