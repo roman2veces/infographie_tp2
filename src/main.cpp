@@ -26,9 +26,6 @@ void checkGLError(int line);
 std::string readFile(const char *path);
 
 // CONSTANTS
-const int POSITION_ATTRIBUT_INDEX = 0, COLOR_ATTRIBUT_INDEX = 1;
-const int POSITION_ATTRIBUT_OFFSET = 0, COLOR_ATTRIBUT_OFFSET = 3;
-const int THREE_COMPONENTS = 3, SIX_COMPONENTS = 6;
 const char *MVP_NAME = "mvp";
 const int N_ROWS = 7;
 const int N_GROUPS = N_ROWS * N_ROWS;
@@ -49,6 +46,7 @@ glm::mat4 treeTransform[N_GROUPS];
 glm::mat4 rockTransform[N_GROUPS];
 glm::mat4 mushroomTransform[N_GROUPS];
 Camera camera(cameraPosition, cameraOrientation);
+glm::vec3 groupPositions[N_GROUPS];
 
 // Define RGBA background colors
 const int R = 1.0;
@@ -83,7 +81,6 @@ glm::mat4 getViewMatrix()
 void setPVMatrix(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatrix)
 {
     GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
-    GLint textureLocation = modelShaderProgram.getUniformLoc("sampler2d");
     glm::mat4 matrix = glm::mat4(1.0f) * projectionViewMatrix;
     glUniformMatrix4fv(location, 1, GL_FALSE, &projectionViewMatrix[0][0]);
 }
@@ -149,6 +146,7 @@ void createTransformation()
             // Génération de la transformation aléatoire pour le groupe
             float randPosX, randPosZ;
             getGroupRandomPos(groupIndex, N_ROWS, randPosX, randPosZ);
+            groupPositions[7* row + col] = glm::vec3(randPosX, 0.0f, randPosZ);
             glm::vec3 groupTranslation = glm::vec3(randPosX, -1.0f, randPosZ);
             float groupRotationY = rand01() * glm::two_pi<float>();
             float groupScale = glm::mix(0.7f, 1.3f, rand01());
@@ -179,7 +177,7 @@ void createTransformation()
     }
 }
 
-void drawWorld(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatrix)
+void drawWorld(ShaderProgram &modelShaderProgram, ShaderProgram& hudShaderProgram, glm::mat4 &projectionViewMatrix)
 {
     // Création des models
     Model mushroomModel("../models/mushroom.obj");
@@ -192,6 +190,8 @@ void drawWorld(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatri
     suzanneTexture.enableMipmap();
     Texture2D treeTexture("../models/treeTexture.png", GL_CLAMP_TO_EDGE);
     treeTexture.enableMipmap();
+    Texture2D treeBillboardTexture("../textures/treeBillboard.png", GL_CLAMP_TO_EDGE);
+    treeBillboardTexture.enableMipmap();
     Texture2D rockTexture("../models/rockTexture.png", GL_CLAMP_TO_EDGE);
     rockTexture.enableMipmap();
     Texture2D mushroomTexture("../models/mushroomTexture.png", GL_CLAMP_TO_EDGE);
@@ -199,12 +199,36 @@ void drawWorld(ShaderProgram &modelShaderProgram, glm::mat4 &projectionViewMatri
 
     for (size_t i = 0; i < N_GROUPS; i++)
     {
+        modelShaderProgram.use();
         GLint location = modelShaderProgram.getUniformLoc(MVP_NAME);
+        float distance = abs(glm::length(cameraPosition-groupPositions[i]));
+        if(distance <= 25){
         glm::mat4 treeMatrix = projectionViewMatrix * groupsTransform[i] * treeTransform[i];
         glUniformMatrix4fv(location, 1, GL_FALSE, &treeMatrix[0][0]);
         treeTexture.use();
         treeModel.draw();
         treeTexture.unuse();
+        }
+        else {
+            // Dessiner une image 2D des arbres lointains
+            hudShaderProgram.use();
+            GLfloat billboardVertices[] = {
+                groupPositions[i].x, groupPositions[i].y, groupPositions[i].z,0.0f, 0.0f,
+                groupPositions[i].x, groupPositions[i].y + 3.47f, groupPositions[i].z,0.0f, 1.0f,
+                groupPositions[i].x + 0.96f*3.47f, groupPositions[i].y+ 3.47f, groupPositions[i].z,1.0f, 1.0f,
+                groupPositions[i].x + 0.96f * 3.47f, groupPositions[i].y, groupPositions[i].z,1.0f, 0.0f
+            };
+            BasicShapeElements billboard(billboardVertices, sizeof(billboardVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
+            billboard.enableAttribute(0, 3, 5 * sizeof(float), 0);
+            billboard.enableAttribute(1, 2, 5 * sizeof(float), 3);
+            glm::mat4 billboardTreeMatrix = projectionViewMatrix * treeTransform[i];
+            billboardTreeMatrix = glm::translate(billboardTreeMatrix, glm::vec3(0.0f, -1.0f, 0.0f));
+            glUniformMatrix4fv(location, 1, GL_FALSE, &billboardTreeMatrix[0][0]);
+            treeBillboardTexture.use();
+            billboard.draw(GL_TRIANGLES, 6);
+            treeBillboardTexture.unuse();
+        }
+        modelShaderProgram.use();
 
         glm::mat4 rockMatrix = projectionViewMatrix * groupsTransform[i] * rockTransform[i];
         glUniformMatrix4fv(location, 1, GL_FALSE, &rockMatrix[0][0]);
@@ -257,8 +281,8 @@ void drawSky(ShaderProgram &skyBoxlShaderProgram, glm::mat4 &projectionMatrix)
 void drawHud(ShaderProgram &hudShaderProgram, Texture2D &HudTexture)
 {
     BasicShapeElements hud(quadVertices, sizeof(quadVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
-    hud.enableAttribute(0, 3, 0, 0);
-    hud.enableAttribute(1, 2, 0, 0);
+    hud.enableAttribute(0, 3, 5 * sizeof(float), 0);
+    hud.enableAttribute(1, 2, 5 * sizeof(float), 3);
     // Configurer le shader et la projection
     hudShaderProgram.use();
     GLint location = hudShaderProgram.getUniformLoc(MVP_NAME);
@@ -345,7 +369,7 @@ int main(int argc, char *argv[])
 
         drawSky(skyBoxlShaderProgram, projectionMatrix);
         modelShaderProgram.use();
-        drawWorld(modelShaderProgram, projectionViewMatrix);
+        drawWorld(modelShaderProgram, hudShaderProgram, projectionViewMatrix);
         setPVMatrix(modelShaderProgram, projectionViewMatrix);
 
         modelShaderProgram.use();

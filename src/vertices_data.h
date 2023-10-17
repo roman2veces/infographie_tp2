@@ -37,19 +37,10 @@ GLuint squarePlaneIndices[] = {
 
 // Indice pour le Hud
 GLfloat quadVertices[] = {
-    -1.0f,
-    -1.0f,
-    0.0f,
-    -1.0f,
-    1.0f,
-    0.0f,
-    1.0f,
-    1.0f,
-    0.0f,
-    1.0f,
-    -1.0f,
-    0.0f,
-};
+    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+    1.0f, -1.0f, 0.0f, 1.0f, 0.0f };
 
 const GLfloat cubeVertices[] = {
     // +z
