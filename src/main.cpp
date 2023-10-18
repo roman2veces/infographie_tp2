@@ -38,7 +38,7 @@ const char *SKY_BOXES_PATHES[] = {
     "../textures/skybox/Daylight Box_Back.bmp"};
 
 // GLOBAL VARIABLES
-glm::vec3 cameraPosition(-15.0f, -1.0f, 0.0f); // position initiale de la camera ou la placer?
+glm::vec3 cameraPosition(-15.0f, -1.0f, 0.0f); // position initiale de la camera ou la placer
 glm::vec2 cameraOrientation(0.0f, 0.0f);       // Orientation initiale (regard droit devant)
 bool isFirstPersonCam = false;
 glm::mat4 groupsTransform[N_GROUPS];
@@ -47,6 +47,7 @@ glm::mat4 rockTransform[N_GROUPS];
 glm::mat4 mushroomTransform[N_GROUPS];
 Camera camera(cameraPosition, cameraOrientation);
 glm::vec3 groupPositions[N_GROUPS];
+float grassPositions[N_ROWS * N_ROWS][2] = {};
 
 // Define RGBA background colors
 const int R = 1.0;
@@ -173,6 +174,12 @@ void createTransformation()
             mushroomTransform[groupIndex] = glm::mat4(1.0f);
             mushroomTransform[groupIndex] = glm::translate(mushroomTransform[groupIndex], glm::vec3(0.3f * treeScale, 0.0f, 0.3f * treeScale));
             mushroomTransform[groupIndex] = glm::scale(mushroomTransform[groupIndex], glm::vec3(0.05f));
+
+            // Generate random positions for grass
+            float randomX = -25.0f + rand01() * 50.0f;
+            float randomZ = -25.0f + rand01() * 50.0f;
+            grassPositions[row][0] = randomX;
+            grassPositions[row][1] = randomZ;
         }
     }
 }
@@ -280,7 +287,7 @@ void drawSky(ShaderProgram &skyBoxlShaderProgram, glm::mat4 &projectionMatrix)
 
 void drawHud(ShaderProgram &hudShaderProgram, Texture2D &HudTexture)
 {
-    BasicShapeElements hud(quadVertices, sizeof(quadVertices), squarePlaneIndices, sizeof(squarePlaneIndices));
+    BasicShapeElements hud(hudSquare, sizeof(hudSquare), squarePlaneIndices, sizeof(squarePlaneIndices));
     hud.enableAttribute(0, 3, 5 * sizeof(float), 0);
     hud.enableAttribute(1, 2, 5 * sizeof(float), 3);
     // Configurer le shader et la projection
@@ -295,6 +302,27 @@ void drawHud(ShaderProgram &hudShaderProgram, Texture2D &HudTexture)
     HudTexture.use();
     hud.draw(GL_TRIANGLES, 6);
     HudTexture.unuse();
+}
+
+void drawGrass(ShaderProgram &shaderProgram, Texture2D &texture, glm::mat4& projectionViewMatrix)
+{
+    shaderProgram.use();
+    GLint location = shaderProgram.getUniformLoc(MVP_NAME);
+    for (size_t i = 0; i < N_ROWS * N_ROWS; i++)
+    {
+        BasicShapeElements grass = BasicShapeElements(normalGrassSquare, sizeof(normalGrassSquare), squarePlaneIndices, sizeof(squarePlaneIndices));
+                      
+        grass.enableAttribute(0, 3, 5 * sizeof(float), 0);
+        grass.enableAttribute(1, 2, 5 * sizeof(float), 3);
+
+        glm::mat4 model = glm::mat4(1.0);
+        model = glm::translate(model, glm::vec3(grassPositions[i][0], 0.0, grassPositions[i][1]));
+        glm::mat4 mvp = projectionViewMatrix * model;
+        glUniformMatrix4fv(location, 1, GL_FALSE, &mvp[0][0]);
+        texture.use();
+        grass.draw(GL_TRIANGLES, 6);
+        texture.unuse();
+    }
 }
 
 int main(int argc, char *argv[])
@@ -332,6 +360,8 @@ int main(int argc, char *argv[])
     riverTexture.enableMipmap();
     Texture2D HudTexture("../textures/heart.png", GL_REPEAT);
     HudTexture.enableMipmap();
+    Texture2D grassTexture("../textures/grassAtlas.png", GL_REPEAT);
+    grassTexture.enableMipmap();
 
     // Shader program du modèle.
     ShaderProgram modelShaderProgram;
@@ -345,6 +375,9 @@ int main(int argc, char *argv[])
     // Shader program du hud
     ShaderProgram hudShaderProgram;
     shadersSetup(hudShaderProgram, "shaders/hud.vs.glsl", "shaders/hud.fs.glsl");
+    // Shader program du square
+    ShaderProgram squareShaderProgram;
+    shadersSetup(squareShaderProgram, "shaders/square.vs.glsl", "shaders/square.fs.glsl");
 
     // Couleur de fond blanche
     glClearColor(R, G, B, A);
@@ -390,6 +423,7 @@ int main(int argc, char *argv[])
         riverTexture.unuse();
 
         drawHud(hudShaderProgram, HudTexture);
+        drawGrass(hudShaderProgram, grassTexture, projectionViewMatrix);
 
         w.swap();
         w.pollEvent();
